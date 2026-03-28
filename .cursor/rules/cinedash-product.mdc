@@ -1,0 +1,38 @@
+---
+description: Escopo funcional CineDash (TMDB, rotas, watchlist, tema)
+alwaysApply: true
+---
+
+# CineDash — domínio
+
+- API: **[TMDB](https://developer.themoviedb.org/docs)** (não confundir com Google Books). Em `ARCHITECTURE.md`, documentar desafios da **API TMDB**, não “API Google”.
+
+## Auth simulada
+
+- Login com **Zod**: email válido, senha **> 6** caracteres.
+- Ao logar: token fictício em **localStorage** ou **cookie**; rotas de descoberta e estante **protegidas**.
+- Diferencial: sessão sobrevive ao **reload**.
+
+## Discovery
+
+- Listagens **Trending/Popular**; **debounce** no input de busca; **paginação** ou infinite scroll.
+- **Filtros:** gênero, ano de lançamento, nota mínima (rating).
+
+## Watchlist (“Minha Lista”)
+
+- Adicionar/remover filmes; persistir após reload.
+- Tabela: colunas título, gênero, data, rating, ações; **ordenação** por título, gênero ou rating.
+- Persistência com **Zustand `persist`** (middleware).
+
+## Detalhe do filme
+
+- Rota dinâmica **`/movie/:id`**: sinopse, elenco, nota, trailer se existir; ação para incluir/remover da lista.
+
+## UI global
+
+- Layout **responsivo**; **tema claro/escuro** persistido (via Zustand).
+- Feedback: loadings, skeletons, toasts de sucesso/erro.
+
+## Git
+
+- Commits semânticos; branches `feature/`, `fix/` quando aplicável.

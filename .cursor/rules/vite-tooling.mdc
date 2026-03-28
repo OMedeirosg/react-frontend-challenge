@@ -1,0 +1,13 @@
+---
+description: Convenções Vite para este projeto (env, config, build)
+globs: vite.config.*,index.html,.env*
+alwaysApply: false
+---
+
+# Vite
+
+- Use **Vite** como bundler/dev server; alinhe `package.json` scripts com `vite`, `vite build`, `vite preview`.
+- Variáveis expostas ao client: prefixo **`VITE_`** e acesso via `import.meta.env.VITE_*`. Nunca commitar segredos; documente chaves em `.env.example` (ex.: `VITE_TMDB_API_KEY`).
+- `tsconfig` com **strict** alinhado ao desafio; paths (`@/`) se adotados no `vite.config` + `tsconfig`.
+- Assets estáticos em `public/`; imports de módulos em `src/`. Evitar lógica pesada em `vite.config` — só plugins necessários (React, TS, Tailwind se aplicável).
+- Testes com **Vitest**: `environment: 'jsdom'`, alias espelhando o Vite quando precisar.
