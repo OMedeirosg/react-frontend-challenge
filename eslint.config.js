@@ -1,4 +1,5 @@
 import js from '@eslint/js'
+import eslintConfigPrettier from 'eslint-config-prettier'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
@@ -27,4 +28,12 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
     },
   },
+  // shadcn/ui: components may export helpers (e.g. buttonVariants) alongside the component
+  {
+    files: ['src/components/ui/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
+  eslintConfigPrettier,
 ])
