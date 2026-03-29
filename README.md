@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -72,7 +71,9 @@ export default defineConfig([
   },
 ])
 ```
+
 =======
+
 # ⚛️ Desafio React Frontend
 
 Bem-vindo ao repositório de avaliação técnica para a vaga de **Desenvolvedor React Pleno**.
@@ -161,4 +162,3 @@ Sabemos que este é um desafio complexo.
 - **Faltou tempo?** Se não conseguir entregar tudo, **priorize a qualidade sobre a quantidade**. É melhor entregar uma funcionalidade perfeitamente arquitetada e testada do que três funcionalidades quebradas. Documente o que faltou no seu README.
 
 **Boa sorte! Estamos ansiosos para ver seu código.** 🚀
->>>>>>> origin/main

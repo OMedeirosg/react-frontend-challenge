@@ -1,5 +1,5 @@
-type Sum = (a: number, b: number) => number;
+type Sum = (a: number, b: number) => number
 
-const sum: Sum = (a, b) => a + b;
+const sum: Sum = (a, b) => a + b
 
-export default sum;
+export default sum
