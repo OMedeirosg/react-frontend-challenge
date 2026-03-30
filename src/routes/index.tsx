@@ -1,8 +1,15 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { useAuthStore } from '@/features/auth/store'
 import { usePopularMovies } from '@/features/movies/queries'
 import { ApiError } from '@/lib/api'
 
 export const Route = createFileRoute('/')({
+  beforeLoad: async () => {
+    await useAuthStore.persist.rehydrate()
+    if (!useAuthStore.getState().token) {
+      throw redirect({ to: '/login' })
+    }
+  },
   component: HomeComponent,
 })
 
