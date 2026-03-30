@@ -19,7 +19,7 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 ## API TMDB
 
 - Documentação: [The Movie Database API](https://developer.themoviedb.org/docs).
-- Base da API: **`VITE_TMDB_BASE_URL`** (opcional; padrão no código `https://api.themoviedb.org/3`). Autenticação v3 com **API Read Access Token**: header `Authorization: Bearer <token>`. O JWT fica em **`VITE_TMDB_READ_ACCESS_TOKEN`** (veja [INSTRUCTIONS.md](./INSTRUCTIONS.md)).
+- Base da API: **`VITE_TMDB_BASE_URL`** (opcional; padrão no código `https://api.themoviedb.org/3`). Autenticação v3 com **API Read Access Token**: header `Authorization: Bearer <token>`. O JWT fica em **`VITE_TMDB_CREDENTIAL_HEADER`** (veja [INSTRUCTIONS.md](./INSTRUCTIONS.md)).
 - Cliente HTTP em [`src/lib/api.ts`](./src/lib/api.ts); endpoints de filmes em [`src/features/movies/tmdbMovies.ts`](./src/features/movies/tmdbMovies.ts) e cache TanStack Query com chaves estáveis em `movieKeys` ([`src/features/movies/queries.ts`](./src/features/movies/queries.ts)).
 - O cliente HTTP pode ficar em uma camada **`services`** ou **`api`**: funções puras + Query nos hooks ou em loaders, mantendo **UI separada de fetch**.
 
