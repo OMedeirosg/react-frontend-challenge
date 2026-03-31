@@ -25,3 +25,37 @@ export type MovieGenre = {
 export type MovieGenresResponse = {
   genres: MovieGenre[]
 }
+
+export type MovieDetails = {
+  id: number
+  title: string
+  overview: string
+  poster_path: string | null
+  backdrop_path: string | null
+  vote_average: number
+  release_date: string
+  genres: MovieGenre[]
+}
+
+export type MovieCastMember = {
+  id: number
+  name: string
+  character: string
+}
+
+export type MovieCreditsResponse = {
+  cast: MovieCastMember[]
+}
+
+export type MovieVideo = {
+  id: string
+  key: string
+  name: string
+  site: string
+  type: string
+  official: boolean
+}
+
+export type MovieVideosResponse = {
+  results: MovieVideo[]
+}

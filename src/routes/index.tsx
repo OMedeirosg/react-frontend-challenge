@@ -1,9 +1,10 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/features/auth/store'
 import { useCuratedListErrorToasts } from '@/features/movies/model/use-curated-list-error-toasts'
 import { useHomeCuratedFilteredMovies } from '@/features/movies/model/use-home-curated-filtered-movies'
 import { useHomeCuratedState } from '@/features/movies/model/use-home-curated-state'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
+import type { MovieListItem } from '@/features/movies/types'
 import {
   useMovieGenres,
   usePopularMovies,
@@ -25,6 +26,7 @@ export const Route = createFileRoute('/')({
 })
 
 function HomeComponent() {
+  const navigate = useNavigate()
   const { ui, actions } = useHomeCuratedState()
   const showToast = useToastStore((s) => s.showToast)
   const watchlistActions = useWatchlistActions()
@@ -60,11 +62,8 @@ function HomeComponent() {
   const tableActions = {
     onToggleWatchlist: watchlistActions.toggleFromMovie,
     isInWatchlist: watchlistActions.isInWatchlist,
-    onOpenDetails: () => {
-      showToast({
-        variant: 'info',
-        message: 'Página de detalhes será disponibilizada em breve.',
-      })
+    onOpenDetails: (movie: MovieListItem) => {
+      void navigate({ to: '/movie/$id', params: { id: String(movie.id) } })
     },
   }
 

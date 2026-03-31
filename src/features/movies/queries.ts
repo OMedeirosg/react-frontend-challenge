@@ -2,7 +2,10 @@ import { useQuery } from '@tanstack/react-query'
 import type { DiscoveryListParams } from './model/discovery-list-params'
 import {
   discoverMovies,
+  getMovieCredits,
+  getMovieDetails,
   getMovieGenres,
+  getMovieVideos,
   getPopularMovies,
   getTrendingMovies,
   searchMovies,
@@ -25,6 +28,12 @@ export const movieKeys = {
     [...movieKeys.lists(), 'search', params] as const,
   genres: (language: string) =>
     [...movieKeys.all, 'genres', { language }] as const,
+  detail: (movieId: number, language: string) =>
+    [...movieKeys.all, 'detail', { movieId, language }] as const,
+  credits: (movieId: number, language: string) =>
+    [...movieKeys.all, 'credits', { movieId, language }] as const,
+  videos: (movieId: number, language: string) =>
+    [...movieKeys.all, 'videos', { movieId, language }] as const,
 }
 
 const POPULAR_LIST_STALE_MS = 1000 * 60 * 5
@@ -107,6 +116,33 @@ export function useDiscoveryMovies(params: DiscoveryListParams) {
           })
       }
     },
+    staleTime: POPULAR_LIST_STALE_MS,
+  })
+}
+
+export function useMovieDetails(movieId: number, language = 'pt-BR') {
+  return useQuery({
+    queryKey: movieKeys.detail(movieId, language),
+    queryFn: () => getMovieDetails({ movieId, language }),
+    enabled: Number.isFinite(movieId) && movieId > 0,
+    staleTime: POPULAR_LIST_STALE_MS,
+  })
+}
+
+export function useMovieCredits(movieId: number, language = 'pt-BR') {
+  return useQuery({
+    queryKey: movieKeys.credits(movieId, language),
+    queryFn: () => getMovieCredits({ movieId, language }),
+    enabled: Number.isFinite(movieId) && movieId > 0,
+    staleTime: POPULAR_LIST_STALE_MS,
+  })
+}
+
+export function useMovieVideos(movieId: number, language = 'pt-BR') {
+  return useQuery({
+    queryKey: movieKeys.videos(movieId, language),
+    queryFn: () => getMovieVideos({ movieId, language }),
+    enabled: Number.isFinite(movieId) && movieId > 0,
     staleTime: POPULAR_LIST_STALE_MS,
   })
 }

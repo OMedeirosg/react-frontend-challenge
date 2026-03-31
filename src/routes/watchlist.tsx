@@ -1,4 +1,9 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import {
+  createFileRoute,
+  Link,
+  redirect,
+  useNavigate,
+} from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -6,11 +11,11 @@ import { useAuthStore } from '@/features/auth/store'
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import { useMovieGenres } from '@/features/movies/queries'
+import type { MovieListItem } from '@/features/movies/types'
 import { MoviesFiltersPanel } from '@/features/movies/ui/movies-filters-panel'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
 import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
-import { useToastStore } from '@/shared/model/toast-store'
 
 export const Route = createFileRoute('/watchlist')({
   beforeLoad: async () => {
@@ -23,9 +28,9 @@ export const Route = createFileRoute('/watchlist')({
 })
 
 function WatchlistPage() {
+  const navigate = useNavigate()
   const movies = useWatchlistStore((state) => state.items)
   const genresQuery = useMovieGenres('pt-BR')
-  const showToast = useToastStore((state) => state.showToast)
   const watchlistActions = useWatchlistActions()
   const [searchRaw, setSearchRaw] = useState('')
   const [contextMode, setContextMode] = useState<'search' | 'filters'>('search')
@@ -110,10 +115,10 @@ function WatchlistPage() {
                 actions={{
                   onToggleWatchlist: watchlistActions.toggleFromMovie,
                   isInWatchlist: watchlistActions.isInWatchlist,
-                  onOpenDetails: () => {
-                    showToast({
-                      variant: 'info',
-                      message: 'Página de detalhes será disponibilizada em breve.',
+                  onOpenDetails: (movie: MovieListItem) => {
+                    void navigate({
+                      to: '/movie/$id',
+                      params: { id: String(movie.id) },
                     })
                   },
                 }}

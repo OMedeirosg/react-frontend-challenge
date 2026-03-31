@@ -1,6 +1,9 @@
 import { api } from '@/lib/api'
 import type {
+  MovieCreditsResponse,
+  MovieDetails,
   MovieGenresResponse,
+  MovieVideosResponse,
   PaginatedMoviesResponse,
 } from './types'
 
@@ -121,5 +124,48 @@ export async function getMovieGenres(
   const search = new URLSearchParams({ language })
   return api.get<MovieGenresResponse>(
     `/genre/movie/list?${search.toString()}`,
+  )
+}
+
+export type MovieDetailsParams = {
+  movieId: number
+  language?: string
+}
+
+export async function getMovieDetails(
+  params: MovieDetailsParams,
+): Promise<MovieDetails> {
+  const { movieId, language = 'pt-BR' } = params
+  const search = new URLSearchParams({ language })
+  return api.get<MovieDetails>(`/movie/${movieId}?${search.toString()}`)
+}
+
+export type MovieCreditsParams = {
+  movieId: number
+  language?: string
+}
+
+export async function getMovieCredits(
+  params: MovieCreditsParams,
+): Promise<MovieCreditsResponse> {
+  const { movieId, language = 'pt-BR' } = params
+  const search = new URLSearchParams({ language })
+  return api.get<MovieCreditsResponse>(
+    `/movie/${movieId}/credits?${search.toString()}`,
+  )
+}
+
+export type MovieVideosParams = {
+  movieId: number
+  language?: string
+}
+
+export async function getMovieVideos(
+  params: MovieVideosParams,
+): Promise<MovieVideosResponse> {
+  const { movieId, language = 'pt-BR' } = params
+  const search = new URLSearchParams({ language })
+  return api.get<MovieVideosResponse>(
+    `/movie/${movieId}/videos?${search.toString()}`,
   )
 }
