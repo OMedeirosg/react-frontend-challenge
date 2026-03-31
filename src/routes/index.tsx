@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useAuthStore } from '@/features/auth/store'
 import { usePopularMovies } from '@/features/movies/queries'
-import { MovieListPoster } from '@/features/movies/ui/movie-list-poster'
+import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { ApiError } from '@/lib/api'
 
 export const Route = createFileRoute('/')({
@@ -36,28 +36,7 @@ function HomeComponent() {
       )}
 
       {data && (
-        <ul className="max-w-2xl space-y-2">
-          {data.results.map((movie) => (
-            <li
-              key={movie.id}
-              className="flex gap-3 border-b border-border py-2"
-            >
-              <MovieListPoster
-                posterPath={movie.poster_path}
-                title={movie.title}
-              />
-              <div className="min-w-0 flex-1">
-                <span className="font-medium">{movie.title}</span>
-                {movie.release_date ? (
-                  <span className="text-muted-foreground">
-                    {' '}
-                    ({movie.release_date.slice(0, 4)})
-                  </span>
-                ) : null}
-              </div>
-            </li>
-          ))}
-        </ul>
+        <MoviesDiscoveryTable movies={data.results} className="max-w-5xl" />
       )}
     </div>
   )
