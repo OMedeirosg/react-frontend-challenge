@@ -12,7 +12,7 @@ import {
 
 import { cn } from '@/lib/utils'
 
-import type { MovieListItem } from '../types'
+import type { MovieGenre, MovieListItem } from '../types'
 import { MovieListPoster } from './movie-list-poster'
 
 const columnHelper = createColumnHelper<MovieListItem>()
@@ -20,6 +20,7 @@ const columnHelper = createColumnHelper<MovieListItem>()
 export type MoviesDiscoveryTableProps = {
   readonly movies: MovieListItem[]
   readonly className?: string
+  readonly genres?: MovieGenre[]
 }
 
 function releaseYear(movie: MovieListItem): string {
@@ -85,30 +86,33 @@ function PosterTableCell(props: Readonly<{ movie: MovieListItem }>) {
   )
 }
 
-function GenreTableCell(props: Readonly<{ movie: MovieListItem }>) {
+function GenreTableCell(
+  props: Readonly<{ movie: MovieListItem; genreNameById?: Map<number, string> }>,
+) {
   const ids = props.movie.genre_ids
   if (!ids.length) {
     return <span className="text-muted-foreground">—</span>
   }
-  return (
-    <span
-      className="text-muted-foreground"
-      title="Nomes dos gêneros após integração com /genre/movie/list"
-    >
-      {ids.length} gênero{ids.length === 1 ? '' : 's'}
-    </span>
-  )
-}
+  const names =
+    props.genreNameById &&
+    ids.map((id) => props.genreNameById?.get(id)).filter(Boolean)
 
-function ActionsPlaceholderCell() {
-  return <span className="text-muted-foreground text-xs">—</span>
+  if (names?.length) {
+    return (
+      <span className="text-muted-foreground">
+        {names.join(', ')}
+      </span>
+    )
+  }
+
+  return <span className="text-muted-foreground">—</span>
 }
 
 function TitleTableCell(props: Readonly<{ title: string }>) {
   return <span className="font-medium">{props.title}</span>
 }
 
-function buildColumns() {
+function buildColumns(genreNameById?: Map<number, string>) {
   return [
     columnHelper.display({
       id: 'poster',
@@ -124,7 +128,12 @@ function buildColumns() {
     columnHelper.display({
       id: 'genre',
       header: 'Gênero',
-      cell: ({ row }) => <GenreTableCell movie={row.original} />,
+      cell: ({ row }) => (
+        <GenreTableCell
+          movie={row.original}
+          genreNameById={genreNameById}
+        />
+      ),
       enableSorting: false,
     }),
     columnHelper.display({
@@ -139,20 +148,22 @@ function buildColumns() {
       cell: (info) => info.getValue().toFixed(1),
       sortingFn: 'basic',
     }),
-    columnHelper.display({
-      id: 'actions',
-      header: 'Ações',
-      cell: () => <ActionsPlaceholderCell />,
-      enableSorting: false,
-    }),
   ]
 }
 
 export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>) {
-  const { movies, className } = props
+  const { movies, className, genres } = props
   const [sorting, setSorting] = useState<SortingState>([])
 
-  const columns = useMemo(() => buildColumns(), [])
+  const genreNameById = useMemo(() => {
+    if (!genres?.length) return undefined
+    return new Map(genres.map((g) => [g.id, g.name]))
+  }, [genres])
+
+  const columns = useMemo(
+    () => buildColumns(genreNameById),
+    [genreNameById],
+  )
 
   /* TanStack Table: React Compiler skips memoization for this hook by design. */
   // eslint-disable-next-line react-hooks/incompatible-library -- useReactTable is the supported API
@@ -175,8 +186,8 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
     >
       <table className="w-full min-w-[720px] border-collapse text-sm">
         <caption className="sr-only">
-          Tabela de filmes em descoberta: colunas pôster, título, gênero, ano,
-          nota e ações. Use os cabeçalhos para ordenar quando disponível.
+          Tabela de filmes em descoberta: colunas pôster, título, gênero, ano e
+          nota. Use os cabeçalhos para ordenar quando disponível.
         </caption>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
