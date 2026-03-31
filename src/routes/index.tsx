@@ -5,6 +5,7 @@ import {
   usePopularMovies,
   useTrendingMovies,
 } from '@/features/movies/queries'
+import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { ApiError } from '@/lib/api'
 
@@ -33,11 +34,6 @@ function HomeComponent() {
 
       <section className="mb-8 space-y-3">
         <h2 className="text-xl font-semibold">Trending</h2>
-        {trendingQuery.isPending ? (
-          <output className="text-muted-foreground" aria-live="polite">
-            Carregando trending…
-          </output>
-        ) : null}
         {trendingQuery.isError ? (
           <p className="text-destructive" role="alert">
             {trendingQuery.error instanceof ApiError
@@ -45,22 +41,21 @@ function HomeComponent() {
               : 'Não foi possível carregar trending.'}
           </p>
         ) : null}
+        {trendingQuery.isPending ? (
+          <MoviesDiscoveryTableSkeleton className="max-w-5xl" />
+        ) : null}
         {trendingQuery.data?.results.length ? (
           <MoviesDiscoveryTable
             movies={trendingQuery.data.results}
             className="max-w-5xl"
             genres={genresQuery.data?.genres}
+            isLoading={trendingQuery.isFetching && !trendingQuery.isPending}
           />
         ) : null}
       </section>
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Popular</h2>
-        {popularQuery.isPending ? (
-          <output className="text-muted-foreground" aria-live="polite">
-            Carregando populares…
-          </output>
-        ) : null}
         {popularQuery.isError ? (
           <p className="text-destructive" role="alert">
             {popularQuery.error instanceof ApiError
@@ -68,11 +63,15 @@ function HomeComponent() {
               : 'Não foi possível carregar populares.'}
           </p>
         ) : null}
+        {popularQuery.isPending ? (
+          <MoviesDiscoveryTableSkeleton className="max-w-5xl" />
+        ) : null}
         {popularQuery.data?.results.length ? (
           <MoviesDiscoveryTable
             movies={popularQuery.data.results}
             className="max-w-5xl"
             genres={genresQuery.data?.genres}
+            isLoading={popularQuery.isFetching && !popularQuery.isPending}
           />
         ) : null}
       </section>

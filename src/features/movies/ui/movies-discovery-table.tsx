@@ -21,6 +21,7 @@ export type MoviesDiscoveryTableProps = {
   readonly movies: MovieListItem[]
   readonly className?: string
   readonly genres?: MovieGenre[]
+  readonly isLoading?: boolean
 }
 
 function releaseYear(movie: MovieListItem): string {
@@ -98,9 +99,10 @@ function GenreTableCell(
     ids.map((id) => props.genreNameById?.get(id)).filter(Boolean)
 
   if (names?.length) {
+    const label = names.join(', ')
     return (
-      <span className="text-muted-foreground">
-        {names.join(', ')}
+      <span className="block truncate text-muted-foreground" title={label}>
+        {label}
       </span>
     )
   }
@@ -109,7 +111,11 @@ function GenreTableCell(
 }
 
 function TitleTableCell(props: Readonly<{ title: string }>) {
-  return <span className="font-medium">{props.title}</span>
+  return (
+    <span className="block truncate font-medium" title={props.title}>
+      {props.title}
+    </span>
+  )
 }
 
 function buildColumns(genreNameById?: Map<number, string>) {
@@ -152,7 +158,7 @@ function buildColumns(genreNameById?: Map<number, string>) {
 }
 
 export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>) {
-  const { movies, className, genres } = props
+  const { movies, className, genres, isLoading = false } = props
   const [sorting, setSorting] = useState<SortingState>([])
 
   const genreNameById = useMemo(() => {
@@ -180,11 +186,21 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
   return (
     <div
       className={cn(
-        'overflow-x-auto rounded-lg ring-1 ring-border',
+        'relative overflow-x-auto rounded-lg ring-1 ring-border',
         className,
       )}
     >
-      <table className="w-full min-w-[720px] border-collapse text-sm">
+      <table
+        className="w-full min-w-[720px] table-fixed border-collapse text-sm"
+        aria-busy={isLoading}
+      >
+        <colgroup>
+          <col className="w-[76px]" />
+          <col className="w-[280px]" />
+          <col className="w-[220px]" />
+          <col className="w-[80px]" />
+          <col className="w-[64px]" />
+        </colgroup>
         <caption className="sr-only">
           Tabela de filmes em descoberta: colunas pôster, título, gênero, ano e
           nota. Use os cabeçalhos para ordenar quando disponível.
@@ -197,7 +213,7 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
                   key={header.id}
                   scope="col"
                   aria-sort={sortAriaSort(header)}
-                  className="border-b border-border px-3 py-2 text-left font-medium"
+                  className="border-b border-border px-3 py-2 text-left font-medium whitespace-nowrap"
                 >
                   {renderTableHeaderContent(header)}
                 </th>
@@ -212,7 +228,7 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
               className="border-b border-border last:border-b-0 hover:bg-muted/30"
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-3 py-2 align-middle">
+                <td key={cell.id} className="px-3 py-2 align-middle whitespace-nowrap">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -220,6 +236,14 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
           ))}
         </tbody>
       </table>
+      {isLoading ? (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/65">
+          <div
+            className="size-7 animate-spin rounded-full border-2 border-muted-foreground/25 border-t-foreground"
+            aria-label="Atualizando lista de filmes"
+          />
+        </div>
+      ) : null}
     </div>
   )
 }

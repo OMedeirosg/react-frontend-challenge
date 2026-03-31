@@ -5,6 +5,7 @@ import { useAuthStore } from '@/features/auth/store'
 import { useDiscoveryListParams } from '@/features/movies/model/use-discovery-list-params'
 import { useDiscoveryMovies, useMovieGenres } from '@/features/movies/queries'
 import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-toolbar'
+import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { ApiError } from '@/lib/api'
 
@@ -29,12 +30,12 @@ function DiscoveryComponent() {
   const moviesQuery = useDiscoveryMovies(params)
   const hasQuery = params.query.length > 0
 
-  const contextLabel =
-    contextMode === 'search'
-      ? hasQuery
-        ? `Searching for "${params.query}"`
-        : 'Pesquisa contextual ativa'
-      : 'Discovering with filters'
+  let contextLabel = 'Discovering with filters'
+  if (contextMode === 'search') {
+    contextLabel = hasQuery
+      ? `Searching for "${params.query}"`
+      : 'Pesquisa contextual ativa'
+  }
 
   const emptyMessage = hasQuery
     ? `Nenhum resultado para "${params.query}" nesta página.`
@@ -67,18 +68,15 @@ function DiscoveryComponent() {
         }}
       />
 
-      {moviesQuery.isPending ? (
-        <output className="text-muted-foreground" aria-live="polite">
-          Carregando resultados…
-        </output>
-      ) : null}
-
       {moviesQuery.isError ? (
         <p className="text-destructive" role="alert">
           {moviesQuery.error instanceof ApiError
             ? `Erro ${moviesQuery.error.status}: falha ao buscar filmes.`
             : 'Não foi possível carregar a lista.'}
         </p>
+      ) : null}
+      {moviesQuery.isPending ? (
+        <MoviesDiscoveryTableSkeleton className="max-w-5xl" />
       ) : null}
 
       {moviesQuery.data?.results.length === 0 ? (
@@ -92,6 +90,7 @@ function DiscoveryComponent() {
           movies={moviesQuery.data.results}
           className="max-w-5xl"
           genres={genresQuery.data?.genres}
+          isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
         />
       ) : null}
     </div>

@@ -197,17 +197,10 @@ export function DiscoveryFiltersToolbar(
       </p>
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="space-y-0.5 text-sm text-muted-foreground">
+        <div className="text-sm text-muted-foreground">
           {contextLabel ? (
             <p className="text-foreground">{contextLabel}</p>
           ) : null}
-          <p>
-            Página atual:{' '}
-            <span className="font-medium text-foreground">
-              {ui.page}
-              {totalPages ? ` / ${totalPages}` : ''}
-            </span>
-          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
