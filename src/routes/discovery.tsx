@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAuthStore } from '@/features/auth/store'
 import { useDiscoveryFeedback } from '@/features/movies/model/use-discovery-feedback'
 import { useDiscoveryListParams } from '@/features/movies/model/use-discovery-list-params'
+import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import { useDiscoveryMovies, useMovieGenres } from '@/features/movies/queries'
 import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-toolbar'
 import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
@@ -31,6 +32,7 @@ function DiscoveryComponent() {
   const genresQuery = useMovieGenres('pt-BR')
   const moviesQuery = useDiscoveryMovies(params)
   const showToast = useToastStore((s) => s.showToast)
+  const watchlistActions = useWatchlistActions()
   const { contextLabel, emptyMessage } = useDiscoveryFeedback({
     contextMode,
     params,
@@ -100,6 +102,16 @@ function DiscoveryComponent() {
             className="w-full"
             genres={genresQuery.data?.genres}
             isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
+            actions={{
+              onToggleWatchlist: watchlistActions.toggleFromMovie,
+              isInWatchlist: watchlistActions.isInWatchlist,
+              onOpenDetails: () => {
+                showToast({
+                  variant: 'info',
+                  message: 'Página de detalhes será disponibilizada em breve.',
+                })
+              },
+            }}
           />
         ) : null}
       </section>

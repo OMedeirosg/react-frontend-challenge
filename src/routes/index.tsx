@@ -3,6 +3,7 @@ import { useAuthStore } from '@/features/auth/store'
 import { useCuratedListErrorToasts } from '@/features/movies/model/use-curated-list-error-toasts'
 import { useHomeCuratedFilteredMovies } from '@/features/movies/model/use-home-curated-filtered-movies'
 import { useHomeCuratedState } from '@/features/movies/model/use-home-curated-state'
+import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import {
   useMovieGenres,
   usePopularMovies,
@@ -25,6 +26,7 @@ export const Route = createFileRoute('/')({
 function HomeComponent() {
   const { ui, actions } = useHomeCuratedState()
   const showToast = useToastStore((s) => s.showToast)
+  const watchlistActions = useWatchlistActions()
   const genresQuery = useMovieGenres('pt-BR')
   const trendingQuery = useTrendingMovies(ui.trendingPage, 'day')
   const popularQuery = usePopularMovies(ui.popularPage)
@@ -50,6 +52,17 @@ function HomeComponent() {
           mode === 'search'
             ? 'Modo de pesquisa contextual ativado.'
             : 'Modo de filtros avançados ativado.',
+      })
+    },
+  }
+
+  const tableActions = {
+    onToggleWatchlist: watchlistActions.toggleFromMovie,
+    isInWatchlist: watchlistActions.isInWatchlist,
+    onOpenDetails: () => {
+      showToast({
+        variant: 'info',
+        message: 'Página de detalhes será disponibilizada em breve.',
       })
     },
   }
@@ -82,6 +95,7 @@ function HomeComponent() {
           emptyMessage={emptyMessage}
           onPrevPage={actionsWithFeedback.prevPage}
           onNextPage={actionsWithFeedback.nextPage}
+          tableActions={tableActions}
         />
       </section>
     </div>

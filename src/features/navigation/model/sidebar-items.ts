@@ -3,7 +3,7 @@ import { type LucideIcon, Compass, LayoutDashboard, ListChecks } from 'lucide-re
 export type SidebarRouteItem = {
   id: string
   label: string
-  to: '/' | '/discovery'
+  to: '/' | '/discovery' | '/watchlist'
   icon: LucideIcon
   enabled: boolean
 }
@@ -31,14 +31,13 @@ export const authenticatedSidebarRouteItems: SidebarRouteItem[] = [
     icon: Compass,
     enabled: true,
   },
-]
-
-export const authenticatedSidebarFutureItems: SidebarFutureItem[] = [
   {
     id: 'watchlist',
     label: 'Watchlist',
+    to: '/watchlist',
     icon: ListChecks,
-    enabled: false,
-    hint: 'Em breve',
+    enabled: true,
   },
 ]
+
+export const authenticatedSidebarFutureItems: SidebarFutureItem[] = []
