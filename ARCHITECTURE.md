@@ -24,6 +24,30 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 - **Imagens (posters):** a TMDB devolve `poster_path` relativo à CDN. A montagem da URL fica centralizada em [`src/features/movies/lib/tmdb-poster-url.ts`](./src/features/movies/lib/tmdb-poster-url.ts) (`https://image.tmdb.org/t/p/{size}/...`). Na UI: se o helper retornar `null`, usar placeholder sem `<img>`; se existir URL e a imagem falhar ao carregar, tratar com `onError` e o mesmo placeholder (ver comentário no módulo).
 - O cliente HTTP pode ficar em uma camada **`services`** ou **`api`**: funções puras + Query nos hooks ou em loaders, mantendo **UI separada de fetch**.
 
+### Endpoints usados no dashboard (Discovery)
+
+- Listas: `/movie/popular`, `/trending/movie/{day|week}`, `/discover/movie`, `/search/movie`
+- Gêneros: `/genre/movie/list` (para preencher o select e mapear `genre_ids` → nomes)
+
+### Query keys e camadas
+
+- `movieKeys` em [`src/features/movies/queries.ts`](./src/features/movies/queries.ts) inclui o **modo** e os **parâmetros serializáveis** (page, query debounced e filtros) para garantir cache correto.
+- Regra de seleção de endpoint no discovery:
+  - se `query` debounced tiver texto: usa `/search/movie` (busca textual)
+  - se `query` estiver vazio: usa o fluxo do modo (`popular`, `trending` ou `discover` com filtros)
+- **Camada 1 (Imagens)**: helper puro `tmdbPosterUrl`.
+- **Camada 2 (Tabela)**: `MoviesDiscoveryTable` renderiza `MovieListItem[]` e exibe gêneros com nomes quando recebe `genres`.
+- **Camada 3 (Busca/Filtros)**: `useDiscoveryListParams` controla input + debounce e produz `DiscoveryListParams` estável.
+- **Camada 4 (Query/UX)**: `useDiscoveryMovies` e `useMovieGenres` buscam dados e a página trata loading/erro/vazio.
+
+### Rotas e UX de descoberta
+
+- [`src/routes/index.tsx`](./src/routes/index.tsx): dashboard com blocos de **Trending** e **Popular**.
+- [`src/routes/discovery.tsx`](./src/routes/discovery.tsx): fluxo completo de busca + filtros + paginação.
+- Na barra de filtros, a UI explicita o contexto atual:
+  - `Searching for "..."` quando há texto
+  - `Discovering with filters` quando não há query textual
+
 ## Organização de pastas (direção FSD / camadas)
 
 Objetivo: separar **UI**, **lógica (hooks)** e **dados (serviços/adapters)**.
