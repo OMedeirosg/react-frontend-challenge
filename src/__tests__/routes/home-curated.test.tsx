@@ -130,7 +130,7 @@ describe('Home curated flow', () => {
     renderWithApp('/')
 
     const searchInput = await screen.findByLabelText('Busca', {
-      selector: '#home-context-search',
+      selector: '#home-curated-search',
     })
     await user.type(searchInput, 'Duna')
 

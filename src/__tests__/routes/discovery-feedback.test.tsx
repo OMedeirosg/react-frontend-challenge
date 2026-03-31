@@ -37,7 +37,7 @@ describe('Discovery feedback states', () => {
       isError: false,
       isFetching: false,
       isPending: false,
-    } as ReturnType<typeof movieQueries.useMovieGenres>)
+    } as unknown as ReturnType<typeof movieQueries.useMovieGenres>)
   })
 
   it('exibe mensagem orientativa quando não há resultados', async () => {
@@ -52,7 +52,7 @@ describe('Discovery feedback states', () => {
       isError: false,
       isFetching: false,
       isPending: false,
-    } as ReturnType<typeof movieQueries.useDiscoveryMovies>)
+    } as unknown as ReturnType<typeof movieQueries.useDiscoveryMovies>)
 
     renderWithApp('/discovery')
 
@@ -72,7 +72,7 @@ describe('Discovery feedback states', () => {
       isError: true,
       isFetching: false,
       isPending: false,
-    } as ReturnType<typeof movieQueries.useDiscoveryMovies>)
+    } as unknown as ReturnType<typeof movieQueries.useDiscoveryMovies>)
 
     renderWithApp('/discovery')
 
