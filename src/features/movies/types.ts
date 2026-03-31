@@ -16,3 +16,12 @@ export type PaginatedMoviesResponse = {
   total_pages: number
   total_results: number
 }
+
+export type MovieGenre = {
+  id: number
+  name: string
+}
+
+export type MovieGenresResponse = {
+  genres: MovieGenre[]
+}
