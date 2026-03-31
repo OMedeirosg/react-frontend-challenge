@@ -20,6 +20,16 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      'max-lines': [
+        'error',
+        { max: 150, skipBlankLines: true, skipComments: true },
+      ],
+      'max-lines-per-function': [
+        'error',
+        { max: 150, skipBlankLines: true, skipComments: true },
+      ],
+    },
   },
   // After general config: TanStack Router files export `Route`, not components only
   {
@@ -33,6 +43,13 @@ export default defineConfig([
     files: ['src/components/ui/**/*.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
+      'max-lines': 'off',
+    },
+  },
+  {
+    files: ['src/routeTree.gen.ts', '**/*.test.ts', '**/*.test.tsx'],
+    rules: {
+      'max-lines': 'off',
     },
   },
   eslintConfigPrettier,

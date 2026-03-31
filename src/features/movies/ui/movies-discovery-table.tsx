@@ -1,11 +1,8 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState } from 'react'
 import {
-  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  type Column,
-  type Header,
   type SortingState,
   useReactTable,
 } from '@tanstack/react-table'
@@ -13,148 +10,17 @@ import {
 import { cn } from '@/lib/utils'
 
 import type { MovieGenre, MovieListItem } from '../types'
-import { MovieListPoster } from './movie-list-poster'
-
-const columnHelper = createColumnHelper<MovieListItem>()
+import { buildMoviesDiscoveryColumns } from './movies-discovery-table-columns'
+import {
+  renderTableHeaderContent,
+  sortAriaSort,
+} from './movies-discovery-table-header-content'
 
 export type MoviesDiscoveryTableProps = {
   readonly movies: MovieListItem[]
   readonly className?: string
   readonly genres?: MovieGenre[]
   readonly isLoading?: boolean
-}
-
-function releaseYear(movie: MovieListItem): string {
-  if (!movie.release_date) return '—'
-  const y = movie.release_date.slice(0, 4)
-  return y || '—'
-}
-
-function sortAriaSort(
-  header: Header<MovieListItem, unknown>,
-): 'ascending' | 'descending' | 'none' {
-  const s = header.column.getIsSorted()
-  if (s === 'asc') return 'ascending'
-  if (s === 'desc') return 'descending'
-  return 'none'
-}
-
-function sortIndicator(column: Column<MovieListItem, unknown>): string {
-  const s = column.getIsSorted()
-  if (s === 'asc') return ' ▲'
-  if (s === 'desc') return ' ▼'
-  return ''
-}
-
-function headerSortLabel(header: Header<MovieListItem, unknown>): string {
-  const h = header.column.columnDef.header
-  return typeof h === 'string' ? h : 'coluna'
-}
-
-function renderTableHeaderContent(
-  header: Header<MovieListItem, unknown>,
-): ReactNode {
-  if (header.isPlaceholder) return null
-  if (!header.column.getCanSort()) {
-    return flexRender(
-      header.column.columnDef.header,
-      header.getContext(),
-    )
-  }
-  return (
-    <button
-      type="button"
-      className="inline-flex cursor-pointer items-center gap-1 rounded-md py-0.5 hover:underline focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-      onClick={header.column.getToggleSortingHandler()}
-      aria-label={`Ordenar por ${headerSortLabel(header)}`}
-    >
-      {flexRender(
-        header.column.columnDef.header,
-        header.getContext(),
-      )}
-      {sortIndicator(header.column)}
-    </button>
-  )
-}
-
-function PosterTableCell(props: Readonly<{ movie: MovieListItem }>) {
-  return (
-    <MovieListPoster
-      posterPath={props.movie.poster_path}
-      title={props.movie.title}
-      className="h-14 max-h-14"
-    />
-  )
-}
-
-function GenreTableCell(
-  props: Readonly<{ movie: MovieListItem; genreNameById?: Map<number, string> }>,
-) {
-  const ids = props.movie.genre_ids
-  if (!ids.length) {
-    return <span className="text-muted-foreground">—</span>
-  }
-  const names =
-    props.genreNameById &&
-    ids.map((id) => props.genreNameById?.get(id)).filter(Boolean)
-
-  if (names?.length) {
-    const label = names.join(', ')
-    return (
-      <span className="block truncate text-muted-foreground" title={label}>
-        {label}
-      </span>
-    )
-  }
-
-  return <span className="text-muted-foreground">—</span>
-}
-
-function TitleTableCell(props: Readonly<{ title: string }>) {
-  return (
-    <span className="block truncate font-medium" title={props.title}>
-      {props.title}
-    </span>
-  )
-}
-
-function buildColumns(genreNameById?: Map<number, string>) {
-  return [
-    columnHelper.display({
-      id: 'poster',
-      header: 'Pôster',
-      cell: ({ row }) => <PosterTableCell movie={row.original} />,
-      enableSorting: false,
-    }),
-    columnHelper.accessor('title', {
-      header: 'Título',
-      cell: (info) => <TitleTableCell title={info.getValue()} />,
-      sortingFn: 'alphanumeric',
-    }),
-    columnHelper.display({
-      id: 'genre',
-      header: 'Gênero',
-      cell: ({ row }) => (
-        <GenreTableCell
-          movie={row.original}
-          genreNameById={genreNameById}
-        />
-      ),
-      enableSorting: false,
-    }),
-    columnHelper.display({
-      id: 'year',
-      header: 'Ano',
-      cell: ({ row }) => releaseYear(row.original),
-      sortingFn: (a, b) =>
-        releaseYear(a.original).localeCompare(releaseYear(b.original)),
-    }),
-    columnHelper.accessor('vote_average', {
-      header: 'Nota',
-      cell: (info) => info.getValue().toFixed(1),
-      sortingFn: 'basic',
-    }),
-  ]
 }
 
 export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>) {
@@ -167,7 +33,7 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
   }, [genres])
 
   const columns = useMemo(
-    () => buildColumns(genreNameById),
+    () => buildMoviesDiscoveryColumns(genreNameById),
     [genreNameById],
   )
 

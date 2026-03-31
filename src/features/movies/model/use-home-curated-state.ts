@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react'
 
+import {
+  parseOptionalFloat,
+  parseOptionalInt,
+} from '@/features/movies/lib/parse-optional-number'
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value'
 
 export type HomeCuratedContextMode = 'search' | 'filters'
@@ -9,20 +13,6 @@ type HomeCuratedFilters = {
   genreId: number | null
   year: number | null
   minVote: number | null
-}
-
-function parseOptionalInt(raw: string): number | null {
-  const trimmed = raw.trim()
-  if (!trimmed) return null
-  const n = Number(trimmed)
-  return Number.isFinite(n) ? Math.trunc(n) : null
-}
-
-function parseOptionalFloat(raw: string): number | null {
-  const trimmed = raw.trim()
-  if (!trimmed) return null
-  const n = Number(trimmed)
-  return Number.isFinite(n) ? n : null
 }
 
 export function useHomeCuratedState() {
