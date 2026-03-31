@@ -21,6 +21,7 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 - Documentação: [The Movie Database API](https://developer.themoviedb.org/docs).
 - Base da API: **`VITE_TMDB_BASE_URL`** (opcional; padrão no código `https://api.themoviedb.org/3`). Autenticação v3 com **API Read Access Token**: header `Authorization: Bearer <token>`. O JWT fica em **`VITE_TMDB_CREDENTIAL_HEADER`** (veja [INSTRUCTIONS.md](./INSTRUCTIONS.md)).
 - Cliente HTTP em [`src/lib/api.ts`](./src/lib/api.ts); endpoints de filmes em [`src/features/movies/tmdbMovies.ts`](./src/features/movies/tmdbMovies.ts) e cache TanStack Query com chaves estáveis em `movieKeys` ([`src/features/movies/queries.ts`](./src/features/movies/queries.ts)).
+- **Imagens (posters):** a TMDB devolve `poster_path` relativo à CDN. A montagem da URL fica centralizada em [`src/features/movies/lib/tmdb-poster-url.ts`](./src/features/movies/lib/tmdb-poster-url.ts) (`https://image.tmdb.org/t/p/{size}/...`). Na UI: se o helper retornar `null`, usar placeholder sem `<img>`; se existir URL e a imagem falhar ao carregar, tratar com `onError` e o mesmo placeholder (ver comentário no módulo).
 - O cliente HTTP pode ficar em uma camada **`services`** ou **`api`**: funções puras + Query nos hooks ou em loaders, mantendo **UI separada de fetch**.
 
 ## Organização de pastas (direção FSD / camadas)
