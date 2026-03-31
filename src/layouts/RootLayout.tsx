@@ -1,58 +1,39 @@
-import { Link, Outlet, useNavigate } from '@tanstack/react-router'
+import { Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
-import { Button } from '@/components/ui/button'
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from '@/components/ui/sidebar'
 import { Toaster } from '@/components/ui/toaster'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useAuthStore } from '@/features/auth/store'
-import { useToastStore } from '@/shared/model/toast-store'
+import { AppSidebar } from '@/features/navigation/ui/app-sidebar'
 
 export function RootLayout() {
-  const navigate = useNavigate()
   const token = useAuthStore((state) => state.token)
-  const logout = useAuthStore((state) => state.logout)
-  const showToast = useToastStore((state) => state.showToast)
   const isAuthenticated = Boolean(token)
 
-  const handleLogout = async () => {
-    logout()
-    showToast({ variant: 'success', message: 'Sessão encerrada com sucesso.' })
-    await navigate({ to: '/login' })
-  }
-
   return (
-    <>
-      <div className="flex items-center gap-2 p-2 text-lg">
-        {isAuthenticated ? (
-          <>
-            <Link
-              to="/"
-              activeProps={{ className: 'font-bold' }}
-              activeOptions={{ exact: true }}
-            >
-              Home
-            </Link>{' '}
-            <Link to="/discovery" activeProps={{ className: 'font-bold' }}>
-              Discovery
-            </Link>{' '}
-            <Button variant="outline" onClick={handleLogout}>
-              Logout
-            </Button>
-          </>
-        ) : (
-          <>
-            <Link to="/register" activeProps={{ className: 'font-bold' }}>
-              Criar conta
-            </Link>{' '}
-            <Link to="/login" activeProps={{ className: 'font-bold' }}>
-              Login
-            </Link>
-          </>
-        )}
-      </div>
-      <hr />
-      <Outlet />
+    <TooltipProvider>
+      {isAuthenticated ? (
+        <SidebarProvider>
+          <AppSidebar />
+          <SidebarInset>
+            <header className="sticky top-0 z-10 flex h-12 items-center border-b bg-background px-2 md:hidden">
+              <SidebarTrigger />
+            </header>
+            <div className="flex-1">
+              <Outlet />
+            </div>
+          </SidebarInset>
+        </SidebarProvider>
+      ) : (
+        <Outlet />
+      )}
       <Toaster />
       <TanStackRouterDevtools position="bottom-right" />
-    </>
+    </TooltipProvider>
   )
 }
