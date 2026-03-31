@@ -83,6 +83,10 @@ export function DiscoveryFiltersToolbar(
           ) : null}
         </div>
         <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Página {ui.page}
+            {totalPages ? ` / ${totalPages}` : ''}
+          </p>
           <Button
             variant="outline"
             size="sm"

@@ -45,11 +45,11 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
         <h2 className="text-xl font-semibold">
           {activeList === 'trending' ? 'Trending' : 'Popular'}
         </h2>
-        <p className="text-sm text-muted-foreground">
-          Página {activePage}
-          {totalPages ? ` / ${totalPages}` : ''}
-        </p>
         <div className="flex items-center gap-2">
+          <p className="text-sm text-muted-foreground">
+            Página {activePage}
+            {totalPages ? ` / ${totalPages}` : ''}
+          </p>
           <Button
             variant="outline"
             size="sm"

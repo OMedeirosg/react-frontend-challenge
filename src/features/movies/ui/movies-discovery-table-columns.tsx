@@ -25,23 +25,19 @@ export function buildMoviesDiscoveryColumns(genreNameById?: Map<number, string>)
       cell: (info) => <TitleTableCell title={info.getValue()} />,
       sortingFn: 'alphanumeric',
     }),
-    columnHelper.display({
+    columnHelper.accessor((row) => genreSortValue(row, genreNameById), {
       id: 'genre',
       header: 'Gênero',
       cell: ({ row }) => (
         <GenreTableCell movie={row.original} genreNameById={genreNameById} />
       ),
-      sortingFn: (a, b) =>
-        genreSortValue(a.original, genreNameById).localeCompare(
-          genreSortValue(b.original, genreNameById),
-        ),
+      sortingFn: 'alphanumeric',
     }),
-    columnHelper.display({
+    columnHelper.accessor((row) => releaseYear(row), {
       id: 'year',
       header: 'Ano',
       cell: ({ row }) => releaseYear(row.original),
-      sortingFn: (a, b) =>
-        releaseYear(a.original).localeCompare(releaseYear(b.original)),
+      sortingFn: 'alphanumeric',
     }),
     columnHelper.accessor('vote_average', {
       header: 'Nota',

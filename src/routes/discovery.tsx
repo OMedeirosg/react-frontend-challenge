@@ -44,59 +44,65 @@ function DiscoveryComponent() {
         Busca textual e filtros avançados em um único fluxo.
       </p>
 
-      <DiscoveryFiltersToolbar
-        className="mb-4 max-w-5xl"
-        ui={ui}
-        actions={actions}
-        genres={genresQuery.data?.genres}
-        totalPages={moviesQuery.data?.total_pages}
-        contextLabel={contextLabel}
-        searchActive={contextMode === 'search'}
-        onSelectSearchContext={() => {
-          setContextMode('search')
-          actions.setGenreId(null)
-          actions.setYear(null)
-          actions.setMinVote(null)
-          showToast({
-            variant: 'info',
-            message: 'Modo de busca contextual ativado.',
-          })
-        }}
-        onSelectFilterContext={() => {
-          setContextMode('filters')
-          actions.setSearchRaw('')
-          showToast({
-            variant: 'info',
-            message: 'Modo de filtros avançados ativado.',
-          })
-        }}
-      />
-
-      {moviesQuery.isError ? (
-        <p className="text-destructive" role="alert">
-          {moviesQuery.error instanceof ApiError
-            ? `Erro ${moviesQuery.error.status}: falha ao buscar filmes.`
-            : 'Não foi possível carregar a lista.'}
-        </p>
-      ) : null}
-      {moviesQuery.isPending ? (
-        <MoviesDiscoveryTableSkeleton className="max-w-5xl" />
-      ) : null}
-
-      {moviesQuery.data?.results.length === 0 ? (
-        <p className="text-muted-foreground" role="status" aria-live="polite">
-          {emptyMessage}
-        </p>
-      ) : null}
-
-      {moviesQuery.data?.results.length ? (
-        <MoviesDiscoveryTable
-          movies={moviesQuery.data.results}
-          className="max-w-5xl"
+      <section className="mx-auto w-full max-w-5xl">
+        <DiscoveryFiltersToolbar
+          className="mb-4 w-full"
+          ui={ui}
+          actions={actions}
           genres={genresQuery.data?.genres}
-          isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
+          totalPages={moviesQuery.data?.total_pages}
+          contextLabel={contextLabel}
+          searchActive={contextMode === 'search'}
+          onSelectSearchContext={() => {
+            setContextMode('search')
+            actions.setGenreId(null)
+            actions.setYear(null)
+            actions.setMinVote(null)
+            showToast({
+              variant: 'info',
+              message: 'Modo de busca contextual ativado.',
+            })
+          }}
+          onSelectFilterContext={() => {
+            setContextMode('filters')
+            actions.setSearchRaw('')
+            showToast({
+              variant: 'info',
+              message: 'Modo de filtros avançados ativado.',
+            })
+          }}
         />
-      ) : null}
+
+        {moviesQuery.isError ? (
+          <p className="w-full text-destructive" role="alert">
+            {moviesQuery.error instanceof ApiError
+              ? `Erro ${moviesQuery.error.status}: falha ao buscar filmes.`
+              : 'Não foi possível carregar a lista.'}
+          </p>
+        ) : null}
+        {moviesQuery.isPending ? (
+          <MoviesDiscoveryTableSkeleton className="w-full" />
+        ) : null}
+
+        {moviesQuery.data?.results.length === 0 ? (
+          <p
+            className="w-full text-muted-foreground"
+            role="status"
+            aria-live="polite"
+          >
+            {emptyMessage}
+          </p>
+        ) : null}
+
+        {moviesQuery.data?.results.length ? (
+          <MoviesDiscoveryTable
+            movies={moviesQuery.data.results}
+            className="w-full"
+            genres={genresQuery.data?.genres}
+            isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
+          />
+        ) : null}
+      </section>
     </div>
   )
 }

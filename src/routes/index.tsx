@@ -62,7 +62,7 @@ function HomeComponent() {
         geral com busca contextual e filtros avançados.
       </p>
 
-      <section className="space-y-4">
+      <section className="mx-auto w-full max-w-5xl space-y-4">
         <HomeCuratedToolbar
           ui={ui}
           actions={actionsWithFeedback}
