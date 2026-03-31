@@ -24,7 +24,7 @@ export function RootLayout() {
             <header className="sticky top-0 z-10 flex h-12 items-center border-b bg-background px-2 md:hidden">
               <SidebarTrigger />
             </header>
-            <div className="flex-1">
+            <div className="min-w-0 flex-1 overflow-x-hidden">
               <Outlet />
             </div>
           </SidebarInset>
