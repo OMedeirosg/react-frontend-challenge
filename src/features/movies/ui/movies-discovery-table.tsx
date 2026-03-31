@@ -10,7 +10,10 @@ import {
 import { cn } from '@/lib/utils'
 
 import type { MovieGenre, MovieListItem } from '../types'
-import { buildMoviesDiscoveryColumns } from './movies-discovery-table-columns'
+import {
+  buildMoviesDiscoveryColumns,
+  type MoviesTableActions,
+} from './movies-discovery-table-columns'
 import {
   renderTableHeaderContent,
   sortAriaSort,
@@ -21,10 +24,19 @@ export type MoviesDiscoveryTableProps = {
   readonly className?: string
   readonly genres?: MovieGenre[]
   readonly isLoading?: boolean
+  readonly actions?: MoviesTableActions
+  readonly viewMode?: 'catalog' | 'watchlist'
 }
 
 export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>) {
-  const { movies, className, genres, isLoading = false } = props
+  const {
+    movies,
+    className,
+    genres,
+    isLoading = false,
+    actions,
+    viewMode = 'catalog',
+  } = props
   const [sorting, setSorting] = useState<SortingState>([])
 
   const genreNameById = useMemo(() => {
@@ -33,8 +45,8 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
   }, [genres])
 
   const columns = useMemo(
-    () => buildMoviesDiscoveryColumns(genreNameById),
-    [genreNameById],
+    () => buildMoviesDiscoveryColumns(genreNameById, actions, { viewMode }),
+    [actions, genreNameById, viewMode],
   )
 
   /* TanStack Table: React Compiler skips memoization for this hook by design. */
@@ -57,7 +69,7 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
       )}
     >
       <table
-        className="w-full min-w-[720px] table-fixed border-collapse text-sm"
+        className="w-full min-w-[920px] table-fixed border-collapse text-sm"
         aria-busy={isLoading}
       >
         <colgroup>
@@ -66,10 +78,12 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
           <col className="w-[220px]" />
           <col className="w-[80px]" />
           <col className="w-[64px]" />
+          <col className="w-[52px]" />
         </colgroup>
         <caption className="sr-only">
-          Tabela de filmes em descoberta: colunas pôster, título, gênero, ano e
-          nota. Use os cabeçalhos para ordenar quando disponível.
+          {viewMode === 'watchlist'
+            ? 'Tabela da watchlist: colunas pôster, título, gênero, data de lançamento, nota e ações.'
+            : 'Tabela de filmes em descoberta: colunas pôster, título, gênero, ano, nota e ações. Use os cabeçalhos para ordenar quando disponível.'}
         </caption>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -91,7 +105,12 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className="border-b border-border last:border-b-0 hover:bg-muted/30"
+              className={cn(
+                'border-b border-border last:border-b-0 hover:bg-muted/30',
+                actions?.isInWatchlist(row.original.id)
+                  ? 'bg-amber-500/5 hover:bg-amber-500/10'
+                  : undefined,
+              )}
             >
               {row.getVisibleCells().map((cell) => (
                 <td key={cell.id} className="px-3 py-2 align-middle whitespace-nowrap">

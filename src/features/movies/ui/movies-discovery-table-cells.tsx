@@ -1,4 +1,5 @@
 import type { MovieListItem } from '@/features/movies/types'
+import { Star } from 'lucide-react'
 
 import { MovieListPoster } from './movie-list-poster'
 
@@ -36,10 +37,20 @@ export function GenreTableCell(
   return <span className="text-muted-foreground">—</span>
 }
 
-export function TitleTableCell(props: Readonly<{ title: string }>) {
+export function TitleTableCell(
+  props: Readonly<{ title: string; isInWatchlist?: boolean }>,
+) {
   return (
-    <span className="block truncate font-medium" title={props.title}>
-      {props.title}
-    </span>
+    <div className="flex items-center gap-2">
+      <span className="block truncate font-medium" title={props.title}>
+        {props.title}
+      </span>
+      {props.isInWatchlist ? (
+        <Star
+          className="size-4 fill-amber-400 text-amber-500"
+          aria-label="Filme na Watchlist"
+        />
+      ) : null}
+    </div>
   )
 }

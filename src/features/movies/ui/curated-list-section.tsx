@@ -3,6 +3,7 @@ import { ApiError } from '@/lib/api'
 
 import { Button } from '@/components/ui/button'
 
+import type { MoviesTableActions } from './movies-discovery-table-columns'
 import { MoviesDiscoveryTable } from './movies-discovery-table'
 import { MoviesDiscoveryTableSkeleton } from './movies-discovery-table-skeleton'
 
@@ -21,6 +22,7 @@ export type CuratedListSectionProps = {
   emptyMessage: string
   onPrevPage: () => void
   onNextPage: () => void
+  tableActions?: MoviesTableActions
 }
 
 export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
@@ -37,6 +39,7 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
     emptyMessage,
     onPrevPage,
     onNextPage,
+    tableActions,
   } = props
 
   return (
@@ -85,6 +88,7 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
           className="max-w-5xl"
           genres={genres}
           isLoading={isFetching && !isPending}
+          actions={tableActions}
         />
       ) : null}
     </section>
