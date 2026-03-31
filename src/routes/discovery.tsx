@@ -9,6 +9,7 @@ import { useDiscoveryMovies, useMovieGenres } from '@/features/movies/queries'
 import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-toolbar'
 import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
+import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
 import { ApiError } from '@/lib/api'
 import { useToastStore } from '@/shared/model/toast-store'
 
@@ -46,75 +47,91 @@ function DiscoveryComponent() {
         Busca textual e filtros avançados em um único fluxo.
       </p>
 
-      <section className="mx-auto w-full max-w-5xl">
-        <DiscoveryFiltersToolbar
-          className="mb-4 w-full"
-          ui={ui}
-          actions={actions}
-          genres={genresQuery.data?.genres}
-          totalPages={moviesQuery.data?.total_pages}
-          contextLabel={contextLabel}
-          searchActive={contextMode === 'search'}
-          onSelectSearchContext={() => {
-            setContextMode('search')
-            actions.setGenreId(null)
-            actions.setYear(null)
-            actions.setMinVote(null)
-            showToast({
-              variant: 'info',
-              message: 'Modo de busca contextual ativado.',
-            })
-          }}
-          onSelectFilterContext={() => {
-            setContextMode('filters')
-            actions.setSearchRaw('')
-            showToast({
-              variant: 'info',
-              message: 'Modo de filtros avançados ativado.',
-            })
-          }}
-        />
-
-        {moviesQuery.isError ? (
-          <p className="w-full text-destructive" role="alert">
-            {moviesQuery.error instanceof ApiError
-              ? `Erro ${moviesQuery.error.status}: falha ao buscar filmes.`
-              : 'Não foi possível carregar a lista.'}
-          </p>
-        ) : null}
-        {moviesQuery.isPending ? (
-          <MoviesDiscoveryTableSkeleton className="w-full" />
-        ) : null}
-
-        {moviesQuery.data?.results.length === 0 ? (
-          <p
-            className="w-full text-muted-foreground"
-            role="status"
-            aria-live="polite"
-          >
-            {emptyMessage}
-          </p>
-        ) : null}
-
-        {moviesQuery.data?.results.length ? (
-          <MoviesDiscoveryTable
-            movies={moviesQuery.data.results}
+      <MoviesTableLayout
+        filters={
+          <DiscoveryFiltersToolbar
             className="w-full"
+            ui={ui}
+            actions={actions}
             genres={genresQuery.data?.genres}
-            isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
-            actions={{
-              onToggleWatchlist: watchlistActions.toggleFromMovie,
-              isInWatchlist: watchlistActions.isInWatchlist,
-              onOpenDetails: () => {
-                showToast({
-                  variant: 'info',
-                  message: 'Página de detalhes será disponibilizada em breve.',
-                })
-              },
+            contextLabel={contextLabel}
+            searchActive={contextMode === 'search'}
+            onSelectSearchContext={() => {
+              setContextMode('search')
+              actions.setGenreId(null)
+              actions.setYear(null)
+              actions.setMinVote(null)
+              showToast({
+                variant: 'info',
+                message: 'Modo de busca contextual ativado.',
+              })
+            }}
+            onSelectFilterContext={() => {
+              setContextMode('filters')
+              actions.setSearchRaw('')
+              showToast({
+                variant: 'info',
+                message: 'Modo de filtros avançados ativado.',
+              })
             }}
           />
-        ) : null}
-      </section>
+        }
+        content={
+          <>
+            {moviesQuery.isError ? (
+              <p className="w-full text-destructive" role="alert">
+                {moviesQuery.error instanceof ApiError
+                  ? `Erro ${moviesQuery.error.status}: falha ao buscar filmes.`
+                  : 'Não foi possível carregar a lista.'}
+              </p>
+            ) : null}
+            {moviesQuery.isPending ? (
+              <MoviesDiscoveryTableSkeleton className="w-full" />
+            ) : null}
+
+            {moviesQuery.data?.results.length === 0 ? (
+              <p
+                className="w-full text-muted-foreground"
+                role="status"
+                aria-live="polite"
+              >
+                {emptyMessage}
+              </p>
+            ) : null}
+
+            {moviesQuery.data?.results.length ? (
+              <MoviesDiscoveryTable
+                movies={moviesQuery.data.results}
+                className="w-full"
+                genres={genresQuery.data?.genres}
+                isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
+                actions={{
+                  onToggleWatchlist: watchlistActions.toggleFromMovie,
+                  isInWatchlist: watchlistActions.isInWatchlist,
+                  onOpenDetails: () => {
+                    showToast({
+                      variant: 'info',
+                      message: 'Página de detalhes será disponibilizada em breve.',
+                    })
+                  },
+                }}
+                externalPagination={{
+                  page: ui.page,
+                  totalPages: moviesQuery.data?.total_pages,
+                  onPrevPage: actions.prevPage,
+                  onNextPage: actions.nextPage,
+                  disablePrev: ui.page <= 1 || moviesQuery.isPending,
+                  disableNext:
+                    moviesQuery.isPending ||
+                    (moviesQuery.data?.total_pages
+                      ? ui.page >= moviesQuery.data.total_pages
+                      : false),
+                }}
+              />
+            ) : null}
+          </>
+        }
+      />
     </div>
   )
 }

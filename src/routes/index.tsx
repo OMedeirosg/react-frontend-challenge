@@ -11,6 +11,7 @@ import {
 } from '@/features/movies/queries'
 import { CuratedListSection } from '@/features/movies/ui/curated-list-section'
 import { HomeCuratedToolbar } from '@/features/movies/ui/home-curated-toolbar'
+import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
 import { useToastStore } from '@/shared/model/toast-store'
 
 export const Route = createFileRoute('/')({
@@ -68,36 +69,40 @@ function HomeComponent() {
   }
 
   return (
-    <div className="p-4">
+    <div className="px-4 pt-4 pb-3">
       <h1 className="mb-1 text-2xl font-semibold">Dashboard</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
+      <p className="mb-4 text-sm text-muted-foreground">
         Home mostra listas curadas (Trending/Popular). Discovery cobre catálogo
         geral com busca contextual e filtros avançados.
       </p>
 
-      <section className="mx-auto w-full max-w-5xl space-y-4">
-        <HomeCuratedToolbar
-          ui={ui}
-          actions={actionsWithFeedback}
-          genres={genresQuery.data?.genres}
-        />
-
-        <CuratedListSection
-          activeList={ui.activeList}
-          activePage={activePage}
-          totalPages={activeQuery.data?.total_pages}
-          isPending={activeQuery.isPending}
-          isFetching={activeQuery.isFetching}
-          isError={activeQuery.isError}
-          error={activeQuery.error}
-          movies={filteredMovies}
-          genres={genresQuery.data?.genres}
-          emptyMessage={emptyMessage}
-          onPrevPage={actionsWithFeedback.prevPage}
-          onNextPage={actionsWithFeedback.nextPage}
-          tableActions={tableActions}
-        />
-      </section>
+      <MoviesTableLayout
+        filters={
+          <HomeCuratedToolbar
+            className="space-y-2"
+            ui={ui}
+            actions={actionsWithFeedback}
+            genres={genresQuery.data?.genres}
+          />
+        }
+        content={
+          <CuratedListSection
+            activeList={ui.activeList}
+            activePage={activePage}
+            totalPages={activeQuery.data?.total_pages}
+            isPending={activeQuery.isPending}
+            isFetching={activeQuery.isFetching}
+            isError={activeQuery.isError}
+            error={activeQuery.error}
+            movies={filteredMovies}
+            genres={genresQuery.data?.genres}
+            emptyMessage={emptyMessage}
+            onPrevPage={actionsWithFeedback.prevPage}
+            onNextPage={actionsWithFeedback.nextPage}
+            tableActions={tableActions}
+          />
+        }
+      />
     </div>
   )
 }
