@@ -5,30 +5,33 @@ import tailwindcss from '@tailwindcss/vite'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
-import { isVitest } from './config/build-env'
-
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
-    tanstackRouter({
-      target: 'react',
-      /** Em Vitest, o code-splitting das rotas usa módulos virtuais incompatíveis com o runner. */
-      autoCodeSplitting: !isVitest,
-      routeFileIgnorePattern: '\\.test\\.',
-    }),
-    react(),
-    tailwindcss(),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
+export default defineConfig(({ mode }) => {
+  const isTestMode = mode === 'test'
+
+  return {
+    plugins: [
+      ...(!isTestMode
+        ? [
+            tanstackRouter({
+              target: 'react',
+              routeFileIgnorePattern: '\\.test\\.',
+            }),
+            tailwindcss(),
+          ]
+        : []),
+      react(),
+    ],
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
     },
-  },
-  test: {
-    environment: 'happy-dom',
-    setupFiles: ['./src/test/setup.ts'],
-    globals: false,
-  },
+    test: {
+      environment: 'happy-dom',
+      globals: true,
+    },
+  }
 })

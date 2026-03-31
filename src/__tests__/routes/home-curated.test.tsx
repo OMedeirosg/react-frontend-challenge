@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -117,12 +116,12 @@ describe('Home curated flow', () => {
     const user = userEvent.setup()
     renderWithApp('/')
 
-    expect(await screen.findByText('Duna: Parte Dois')).toBeInTheDocument()
+    expect(await screen.findByText('Duna: Parte Dois')).toBeTruthy()
 
     await user.click(screen.getAllByRole('tab', { name: 'Popular' })[0])
 
     await waitFor(() => {
-      expect(screen.getByText('Popular Hit')).toBeInTheDocument()
+      expect(screen.getByText('Popular Hit')).toBeTruthy()
     })
   })
 
@@ -136,10 +135,10 @@ describe('Home curated flow', () => {
     await user.type(searchInput, 'Duna')
 
     await waitFor(() => {
-      expect(screen.getByText('Duna: Parte Dois')).toBeInTheDocument()
+      expect(screen.getByText('Duna: Parte Dois')).toBeTruthy()
     })
     await waitFor(() => {
-      expect(screen.queryByText('Filme Drama')).not.toBeInTheDocument()
+      expect(screen.queryByText('Filme Drama')).toBeNull()
     })
   })
 })

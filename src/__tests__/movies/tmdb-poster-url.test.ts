@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import {
   TMDB_IMAGE_BASE,
   tmdbPosterUrl,

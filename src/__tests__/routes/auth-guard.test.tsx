@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 
 import { useAuthStore } from '@/features/auth/store'
@@ -15,7 +14,7 @@ describe('auth guard (discovery)', () => {
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/login')
     })
-    expect(screen.getByText('Iniciar sessão')).toBeInTheDocument()
+    expect(screen.getByText('Iniciar sessão')).toBeTruthy()
   })
 
   it('com token, /discovery mostra conteúdo da tela', async () => {
@@ -25,9 +24,7 @@ describe('auth guard (discovery)', () => {
     renderWithApp('/discovery')
 
     await waitFor(() => {
-      expect(
-        screen.getByRole('heading', { name: 'Discovery' }),
-      ).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Discovery' })).toBeTruthy()
     })
   })
 })

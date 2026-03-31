@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
@@ -51,9 +50,7 @@ describe('RegisterForm', () => {
     await fillRegisterForm(user, 'dup@test.com', 'secret12')
 
     await waitFor(() => {
-      expect(
-        screen.getByText('Este email já está registado.'),
-      ).toBeInTheDocument()
+      expect(screen.getByText('Este email já está registado.')).toBeTruthy()
     })
   })
 })

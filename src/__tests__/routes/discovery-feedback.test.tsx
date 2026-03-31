@@ -1,4 +1,3 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 
 import { useAuthStore } from '@/features/auth/store'
@@ -62,7 +61,7 @@ describe('Discovery feedback states', () => {
         screen.getByText(
           'Ainda não achamos o que você procura. Tente busca contextual ou filtros mais amplos.',
         ),
-      ).toBeInTheDocument()
+      ).toBeTruthy()
     })
   })
 
