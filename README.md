@@ -12,6 +12,11 @@ Dashboard de curadoria de filmes para o **Desafio React Frontend** (consumo da A
 
 React (Vite), TypeScript strict, TanStack Router, TanStack Query, Zustand, shadcn/ui, Tailwind CSS, Vitest, React Hook Form + Zod (conforme o desafio).
 
+## Escopo de telas
+
+- `Home (/)`: listas curadas **Trending** e **Popular** com paginação própria, alternância de lista ativa e modo de **Pesquisa contextual** / **Filtros avançados**.
+- `Discovery (/discovery)`: descoberta de catálogo geral com busca contextual, filtros e paginação.
+
 ## Documentação do desafio
 
 O enunciado geral e as opções do desafio estão em [docs/README.md](./docs/README.md). Este repositório implementa a **opção CineDash (filmes)**.

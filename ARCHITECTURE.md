@@ -42,11 +42,29 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 
 ### Rotas e UX de descoberta
 
-- [`src/routes/index.tsx`](./src/routes/index.tsx): dashboard com blocos de **Trending** e **Popular**.
-- [`src/routes/discovery.tsx`](./src/routes/discovery.tsx): fluxo completo de busca + filtros + paginação.
+- [`src/routes/index.tsx`](./src/routes/index.tsx): dashboard com listas curadas de **Trending** e **Popular**, alternáveis em uma única grade. A home possui modo de **Pesquisa contextual** e modo de **Filtros avançados**, com paginação própria por lista.
+- [`src/routes/discovery.tsx`](./src/routes/discovery.tsx): fluxo de **catálogo geral** com busca textual, filtros e paginação para exploração ampla do acervo.
 - Na barra de filtros, a UI explicita o contexto atual:
   - `Searching for "..."` quando há texto
   - `Discovering with filters` quando não há query textual
+
+### Escopo funcional por rota
+
+- **Home (`/`)**: visão curada e rápida com recortes de mercado (**Trending** e **Popular**). O objetivo é acompanhamento de listas prontas da TMDB com refinamento local (busca contextual/filtros) dentro da lista ativa.
+- **Discovery (`/discovery`)**: visão de descoberta ampla do catálogo. O objetivo é refinamento de consulta com busca contextual + filtros avançados.
+- Essa separação evita sobrecarregar uma única tela e deixa explícito que listas curadas e descoberta geral são fluxos complementares, com objetivos diferentes.
+
+### Organização interna da Home curada (FSD)
+
+- **Model (`src/features/movies/model`)**
+  - `use-home-curated-state.ts`: estado de UI da home (lista ativa, modo contextual, paginação, filtros, debounce e actions).
+  - `use-home-curated-filtered-movies.ts`: regra de filtragem da lista ativa e mensagem de estado vazio.
+  - `use-curated-list-error-toasts.ts`: feedback global de erro para Trending/Popular com deduplicação.
+- **UI (`src/features/movies/ui`)**
+  - `home-curated-toolbar.tsx`: barra reutilizável de modo (pesquisa/filtros), seleção de lista e controles de filtro.
+  - `curated-list-section.tsx`: seção da tabela com paginação, loading, erro e empty.
+- **Rota (`src/routes/index.tsx`)**
+  - apenas composição das camadas (`model` + `ui`) e wiring das queries.
 
 ## Organização de pastas (direção FSD / camadas)
 
