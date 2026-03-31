@@ -27,7 +27,7 @@ export function useDiscoveryFeedback(
         ? `Searching for "${params.query}"`
         : 'Pesquisa contextual ativa'
     }
-    return 'Discovering with filters'
+    return undefined
   }, [contextMode, hasQuery, params.query])
 
   const emptyMessage = hasQuery
