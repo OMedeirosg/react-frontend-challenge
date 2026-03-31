@@ -4,13 +4,13 @@ import { screen, waitFor } from '@testing-library/react'
 import { useAuthStore } from '@/features/auth/store'
 import { renderWithApp, resetAuthStore } from '@/test/test-utils'
 
-describe('auth guard (about)', () => {
+describe('auth guard (discovery)', () => {
   beforeEach(() => {
     resetAuthStore()
   })
 
-  it('sem token, /about redireciona para /login', async () => {
-    const { router } = renderWithApp('/about')
+  it('sem token, /discovery redireciona para /login', async () => {
+    const { router } = renderWithApp('/discovery')
 
     await waitFor(() => {
       expect(router.state.location.pathname).toBe('/login')
@@ -18,15 +18,15 @@ describe('auth guard (about)', () => {
     expect(screen.getByText('Iniciar sessão')).toBeInTheDocument()
   })
 
-  it('com token, /about mostra conteúdo About', async () => {
-    await useAuthStore.getState().register('about@test.com', 'secret12')
-    await useAuthStore.getState().login('about@test.com', 'secret12')
+  it('com token, /discovery mostra conteúdo da tela', async () => {
+    await useAuthStore.getState().register('discovery@test.com', 'secret12')
+    await useAuthStore.getState().login('discovery@test.com', 'secret12')
 
-    renderWithApp('/about')
+    renderWithApp('/discovery')
 
     await waitFor(() => {
       expect(
-        screen.getByRole('heading', { name: 'About' }),
+        screen.getByRole('heading', { name: 'Discovery' }),
       ).toBeInTheDocument()
     })
   })
