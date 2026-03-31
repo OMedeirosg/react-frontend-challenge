@@ -1,14 +1,15 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
-import { useEffect, useRef } from 'react'
 import { useAuthStore } from '@/features/auth/store'
+import { useCuratedListErrorToasts } from '@/features/movies/model/use-curated-list-error-toasts'
+import { useHomeCuratedFilteredMovies } from '@/features/movies/model/use-home-curated-filtered-movies'
+import { useHomeCuratedState } from '@/features/movies/model/use-home-curated-state'
 import {
   useMovieGenres,
   usePopularMovies,
   useTrendingMovies,
 } from '@/features/movies/queries'
-import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
-import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
-import { ApiError } from '@/lib/api'
+import { CuratedListSection } from '@/features/movies/ui/curated-list-section'
+import { HomeCuratedToolbar } from '@/features/movies/ui/home-curated-toolbar'
 import { useToastStore } from '@/shared/model/toast-store'
 
 export const Route = createFileRoute('/')({
@@ -22,107 +23,66 @@ export const Route = createFileRoute('/')({
 })
 
 function HomeComponent() {
-  const genresQuery = useMovieGenres('pt-BR')
-  const trendingQuery = useTrendingMovies(1, 'day')
-  const popularQuery = usePopularMovies(1)
+  const { ui, actions } = useHomeCuratedState()
   const showToast = useToastStore((s) => s.showToast)
-  const lastTrendingErrorRef = useRef<string | null>(null)
-  const lastPopularErrorRef = useRef<string | null>(null)
+  const genresQuery = useMovieGenres('pt-BR')
+  const trendingQuery = useTrendingMovies(ui.trendingPage, 'day')
+  const popularQuery = usePopularMovies(ui.popularPage)
+  useCuratedListErrorToasts(trendingQuery, popularQuery)
 
-  useEffect(() => {
-    if (!trendingQuery.isError) {
-      lastTrendingErrorRef.current = null
-      return
-    }
+  const activeQuery = ui.activeList === 'trending' ? trendingQuery : popularQuery
+  const activePage = ui.activePage
 
-    const errorKey =
-      trendingQuery.error instanceof ApiError
-        ? `api-${trendingQuery.error.status}`
-        : 'generic'
+  const { filteredMovies, emptyMessage } = useHomeCuratedFilteredMovies({
+    ui,
+    trendingData: trendingQuery.data,
+    popularData: popularQuery.data,
+  })
 
-    if (lastTrendingErrorRef.current === errorKey) return
-    lastTrendingErrorRef.current = errorKey
-    showToast({
-      variant: 'error',
-      message:
-        trendingQuery.error instanceof ApiError
-          ? `Falha ao carregar Trending (erro ${trendingQuery.error.status}).`
-          : 'Falha ao carregar Trending.',
-    })
-  }, [showToast, trendingQuery.error, trendingQuery.isError])
-
-  useEffect(() => {
-    if (!popularQuery.isError) {
-      lastPopularErrorRef.current = null
-      return
-    }
-
-    const errorKey =
-      popularQuery.error instanceof ApiError
-        ? `api-${popularQuery.error.status}`
-        : 'generic'
-
-    if (lastPopularErrorRef.current === errorKey) return
-    lastPopularErrorRef.current = errorKey
-    showToast({
-      variant: 'error',
-      message:
-        popularQuery.error instanceof ApiError
-          ? `Falha ao carregar Popular (erro ${popularQuery.error.status}).`
-          : 'Falha ao carregar Popular.',
-    })
-  }, [popularQuery.error, popularQuery.isError, showToast])
+  const actionsWithFeedback = {
+    ...actions,
+    setContextMode: (mode: 'search' | 'filters') => {
+      if (ui.contextMode === mode) return
+      actions.setContextMode(mode)
+      showToast({
+        variant: 'info',
+        message:
+          mode === 'search'
+            ? 'Modo de pesquisa contextual ativado.'
+            : 'Modo de filtros avançados ativado.',
+      })
+    },
+  }
 
   return (
     <div className="p-4">
       <h1 className="mb-1 text-2xl font-semibold">Dashboard</h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Tendências e populares do dia. Para buscar por texto e usar filtros,
-        acesse a rota Discovery.
+        Home mostra listas curadas (Trending/Popular). Discovery cobre catálogo
+        geral com busca contextual e filtros avançados.
       </p>
 
-      <section className="mb-8 space-y-3">
-        <h2 className="text-xl font-semibold">Trending</h2>
-        {trendingQuery.isError ? (
-          <p className="text-destructive" role="alert">
-            {trendingQuery.error instanceof ApiError
-              ? `Erro ${trendingQuery.error.status}: falha ao buscar trending.`
-              : 'Não foi possível carregar trending.'}
-          </p>
-        ) : null}
-        {trendingQuery.isPending ? (
-          <MoviesDiscoveryTableSkeleton className="max-w-5xl" />
-        ) : null}
-        {trendingQuery.data?.results.length ? (
-          <MoviesDiscoveryTable
-            movies={trendingQuery.data.results}
-            className="max-w-5xl"
-            genres={genresQuery.data?.genres}
-            isLoading={trendingQuery.isFetching && !trendingQuery.isPending}
-          />
-        ) : null}
-      </section>
+      <section className="space-y-4">
+        <HomeCuratedToolbar
+          ui={ui}
+          actions={actionsWithFeedback}
+          genres={genresQuery.data?.genres}
+        />
 
-      <section className="space-y-3">
-        <h2 className="text-xl font-semibold">Popular</h2>
-        {popularQuery.isError ? (
-          <p className="text-destructive" role="alert">
-            {popularQuery.error instanceof ApiError
-              ? `Erro ${popularQuery.error.status}: falha ao buscar populares.`
-              : 'Não foi possível carregar populares.'}
-          </p>
-        ) : null}
-        {popularQuery.isPending ? (
-          <MoviesDiscoveryTableSkeleton className="max-w-5xl" />
-        ) : null}
-        {popularQuery.data?.results.length ? (
-          <MoviesDiscoveryTable
-            movies={popularQuery.data.results}
-            className="max-w-5xl"
-            genres={genresQuery.data?.genres}
-            isLoading={popularQuery.isFetching && !popularQuery.isPending}
-          />
-        ) : null}
+        <CuratedListSection
+          activeList={ui.activeList}
+          activePage={activePage}
+          totalPages={activeQuery.data?.total_pages}
+          isPending={activeQuery.isPending}
+          isFetching={activeQuery.isFetching}
+          isError={activeQuery.isError}
+          error={activeQuery.error}
+          movies={filteredMovies}
+          genres={genresQuery.data?.genres}
+          emptyMessage={emptyMessage}
+          onPrevPage={actionsWithFeedback.prevPage}
+          onNextPage={actionsWithFeedback.nextPage}
+        />
       </section>
     </div>
   )
