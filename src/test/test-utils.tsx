@@ -4,6 +4,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 
 import { routeTree } from '@/routeTree.gen'
 import { useAuthStore } from '@/features/auth/store'
+import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
 import { ReactQueryProvider } from '@/providers/ReactQueryProvider'
 
 /** Limpa cookie persistido e repõe o estado in-memory da auth. */
@@ -14,6 +15,11 @@ export function resetAuthStore() {
     token: null,
     currentUserEmail: null,
   })
+}
+
+export function resetWatchlistStore() {
+  useWatchlistStore.persist.clearStorage()
+  useWatchlistStore.setState({ items: [] })
 }
 
 export function createTestRouter(initialPath: string) {
