@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
+import { ThemeToggle } from '@/components/theme-toggle'
 import {
   SidebarInset,
   SidebarProvider,
@@ -30,7 +31,14 @@ export function RootLayout() {
           </SidebarInset>
         </SidebarProvider>
       ) : (
-        <Outlet />
+        <>
+          <div className="pointer-events-none fixed right-3 top-3 z-50 md:right-4 md:top-4">
+            <div className="pointer-events-auto">
+              <ThemeToggle variant="outline" />
+            </div>
+          </div>
+          <Outlet />
+        </>
       )}
       <Toaster />
       <TanStackRouterDevtools position="bottom-right" />

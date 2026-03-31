@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { LogOut, Popcorn } from 'lucide-react'
+import { LogOut, Moon, Sun } from 'lucide-react'
 
+import { Logo } from '@/components/logo'
 import {
   Sidebar,
   SidebarContent,
@@ -18,12 +19,15 @@ import {
 } from '@/features/navigation/model/sidebar-items'
 import { useAuthStore } from '@/features/auth/store'
 import { useToastStore } from '@/shared/model/toast-store'
+import { useThemeStore } from '@/shared/model/theme-store'
 
 export function AppSidebar() {
   const navigate = useNavigate()
   const location = useLocation()
   const logout = useAuthStore((state) => state.logout)
   const showToast = useToastStore((state) => state.showToast)
+  const theme = useThemeStore((s) => s.theme)
+  const toggleTheme = useThemeStore((s) => s.toggleTheme)
 
   const handleLogout = async () => {
     logout()
@@ -36,9 +40,14 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="h-11" tooltip="CineDash">
-              <Popcorn />
-              <span className="text-base font-semibold tracking-tight">CineDash</span>
+            <SidebarMenuButton
+              asChild
+              className="h-11 min-h-11 [&_svg]:h-8! [&_svg]:w-auto!"
+              tooltip="Início"
+            >
+              <Link to="/">
+                <Logo className="h-8 max-w-full" />
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -89,6 +98,16 @@ export function AppSidebar() {
 
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              type="button"
+              onClick={() => toggleTheme()}
+              tooltip={theme === 'dark' ? 'Tema claro' : 'Tema escuro'}
+            >
+              {theme === 'dark' ? <Sun /> : <Moon />}
+              <span>Tema</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} tooltip="Sair">
               <LogOut />
