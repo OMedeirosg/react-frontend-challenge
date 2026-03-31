@@ -27,8 +27,8 @@ export function RootLayout() {
             >
               Home
             </Link>{' '}
-            <Link to="/about" activeProps={{ className: 'font-bold' }}>
-              About
+            <Link to="/discovery" activeProps={{ className: 'font-bold' }}>
+              Discovery
             </Link>{' '}
             <Button variant="outline" onClick={handleLogout}>
               Logout
