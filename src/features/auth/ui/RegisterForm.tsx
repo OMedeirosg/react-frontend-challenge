@@ -16,10 +16,12 @@ import {
   type RegisterFormData,
 } from '@/features/auth/model/register-schema'
 import { useAuthStore } from '@/features/auth/store'
+import { useToastStore } from '@/shared/model/toast-store'
 
 export function RegisterForm() {
   const navigate = useNavigate()
   const registerAccount = useAuthStore((s) => s.register)
+  const showToast = useToastStore((s) => s.showToast)
 
   const {
     register,
@@ -38,21 +40,34 @@ export function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     clearErrors('root')
-    const result = await registerAccount(data.email, data.password)
-    if (!result.success) {
-      if (result.error === 'duplicate_email') {
-        setError('root', {
-          message: 'Este email já está registado.',
-        })
+    try {
+      const result = await registerAccount(data.email, data.password)
+      if (!result.success) {
+        if (result.error === 'duplicate_email') {
+          const message = 'Este email já está registado.'
+          setError('root', { message })
+          showToast({ variant: 'error', message: 'Erro ao criar a conta: email já cadastrado.' })
+        } else {
+          showToast({ variant: 'error', message: 'Erro ao criar a conta.' })
+        }
+        return
       }
-      return
+      showToast({ variant: 'success', message: 'Conta criada com sucesso. Faça login para continuar.' })
+      await navigate({ to: '/login' })
+    } catch {
+      setError('root', { message: 'Não foi possível criar a conta agora.' })
+      showToast({ variant: 'error', message: 'Erro ao criar a conta. Tente novamente.' })
     }
-    await navigate({ to: '/login' })
   }
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, () => {
+        showToast({
+          variant: 'info',
+          message: 'Informações inválidas. Revise os campos do cadastro.',
+        })
+      })}
       className="flex flex-col gap-4"
       noValidate
     >

@@ -2,16 +2,20 @@ import { Link, Outlet, useNavigate } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import { Button } from '@/components/ui/button'
+import { Toaster } from '@/components/ui/toaster'
 import { useAuthStore } from '@/features/auth/store'
+import { useToastStore } from '@/shared/model/toast-store'
 
 export function RootLayout() {
   const navigate = useNavigate()
   const token = useAuthStore((state) => state.token)
   const logout = useAuthStore((state) => state.logout)
+  const showToast = useToastStore((state) => state.showToast)
   const isAuthenticated = Boolean(token)
 
   const handleLogout = async () => {
     logout()
+    showToast({ variant: 'success', message: 'Sessão encerrada com sucesso.' })
     await navigate({ to: '/login' })
   }
 
@@ -47,6 +51,7 @@ export function RootLayout() {
       </div>
       <hr />
       <Outlet />
+      <Toaster />
       <TanStackRouterDevtools position="bottom-right" />
     </>
   )

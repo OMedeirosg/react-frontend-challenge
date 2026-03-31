@@ -13,10 +13,12 @@ import {
 import { Input } from '@/components/ui/input'
 import { loginSchema, type LoginFormData } from '@/features/auth/model/login-schema'
 import { useAuthStore } from '@/features/auth/store'
+import { useToastStore } from '@/shared/model/toast-store'
 
 export function LoginForm() {
   const navigate = useNavigate()
   const loginAccount = useAuthStore((s) => s.login)
+  const showToast = useToastStore((s) => s.showToast)
 
   const {
     register,
@@ -34,19 +36,30 @@ export function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     clearErrors('root')
-    const result = await loginAccount(data.email, data.password)
-    if (!result.success) {
-      setError('root', {
-        message: 'Email ou senha inválidos.',
-      })
-      return
+    try {
+      const result = await loginAccount(data.email, data.password)
+      if (!result.success) {
+        const message = 'Email ou senha inválidos.'
+        setError('root', { message })
+        showToast({ variant: 'error', message: 'Erro ao entrar: credenciais inválidas.' })
+        return
+      }
+      showToast({ variant: 'success', message: 'Login realizado com sucesso.' })
+      await navigate({ to: '/' })
+    } catch {
+      setError('root', { message: 'Não foi possível entrar agora.' })
+      showToast({ variant: 'error', message: 'Erro ao entrar. Tente novamente.' })
     }
-    await navigate({ to: '/' })
   }
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit, () => {
+        showToast({
+          variant: 'info',
+          message: 'Informações inválidas. Revise os campos e tente novamente.',
+        })
+      })}
       className="flex flex-col gap-4"
       noValidate
     >
