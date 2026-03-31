@@ -13,7 +13,7 @@ export function DiscoveryContextToggle(
 
   return (
     <div
-      className="inline-flex rounded-lg border border-border p-1"
+      className="flex flex-col rounded-lg border border-border p-1"
       role="tablist"
       aria-label="Modo de descoberta"
     >
@@ -21,6 +21,7 @@ export function DiscoveryContextToggle(
         type="button"
         variant={contextMode === 'search' ? 'default' : 'ghost'}
         size="sm"
+        className="w-full justify-start"
         onClick={onSelectSearchContext}
         role="tab"
         aria-selected={contextMode === 'search'}
@@ -31,6 +32,7 @@ export function DiscoveryContextToggle(
         type="button"
         variant={contextMode === 'filters' ? 'default' : 'ghost'}
         size="sm"
+        className="w-full justify-start"
         onClick={onSelectFilterContext}
         role="tab"
         aria-selected={contextMode === 'filters'}

@@ -1,9 +1,5 @@
 import { useMemo, useState } from 'react'
 
-import {
-  parseOptionalFloat,
-  parseOptionalInt,
-} from '@/features/movies/lib/parse-optional-number'
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value'
 
 export type HomeCuratedContextMode = 'search' | 'filters'
@@ -58,24 +54,17 @@ export function useHomeCuratedState() {
             setFilters({ genreId: null, year: null, minVote: null })
           }
         },
-        clearSearch: () => {
-          setSearchRaw('')
-          setActivePage(1)
-        },
-        setGenreIdFromRaw: (value: string) => {
-          const genreId = parseOptionalInt(value)
+        setGenreId: (genreId: number | null) => {
           setFilters((prev) => ({ ...prev, genreId }))
           setSearchRaw('')
           setActivePage(1)
         },
-        setYearFromRaw: (value: string) => {
-          const year = parseOptionalInt(value)
+        setYear: (year: number | null) => {
           setFilters((prev) => ({ ...prev, year }))
           setSearchRaw('')
           setActivePage(1)
         },
-        setMinVoteFromRaw: (value: string) => {
-          const minVote = parseOptionalFloat(value)
+        setMinVote: (minVote: number | null) => {
           setFilters((prev) => ({ ...prev, minVote }))
           setSearchRaw('')
           setActivePage(1)

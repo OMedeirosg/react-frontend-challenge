@@ -5,10 +5,8 @@ import type {
 } from '@/features/movies/model/use-home-curated-state'
 import type { MovieGenre } from '@/features/movies/types'
 
-import { HomeCuratedContextToggle } from './home-curated-context-toggle'
-import { HomeCuratedFiltersPanel } from './home-curated-filters-panel'
 import { HomeCuratedListToggle } from './home-curated-list-toggle'
-import { HomeCuratedSearchPanel } from './home-curated-search-panel'
+import { MoviesFiltersPanel } from './movies-filters-panel'
 
 export type HomeCuratedToolbarProps = {
   className?: string
@@ -24,10 +22,9 @@ export type HomeCuratedToolbarProps = {
     setActiveList: (mode: HomeCuratedListMode) => void
     setContextMode: (mode: HomeCuratedContextMode) => void
     setSearchRaw: (value: string) => void
-    clearSearch: () => void
-    setGenreIdFromRaw: (value: string) => void
-    setYearFromRaw: (value: string) => void
-    setMinVoteFromRaw: (value: string) => void
+    setGenreId: (value: number | null) => void
+    setYear: (value: number | null) => void
+    setMinVote: (value: number | null) => void
     resetFilters: () => void
   }
   genres?: MovieGenre[]
@@ -37,14 +34,28 @@ export function HomeCuratedToolbar(props: Readonly<HomeCuratedToolbarProps>) {
   const { className, ui, actions, genres } = props
 
   return (
-    <section className={cn('space-y-3', className)} aria-label="Filtros da home">
-      <HomeCuratedListToggle ui={ui} actions={actions} />
-      <HomeCuratedContextToggle ui={ui} actions={actions} />
-      {ui.contextMode === 'search' ? (
-        <HomeCuratedSearchPanel ui={ui} actions={actions} />
-      ) : (
-        <HomeCuratedFiltersPanel ui={ui} actions={actions} genres={genres} />
-      )}
+    <section className={cn('space-y-2', className)} aria-label="Filtros da home">
+      <HomeCuratedListToggle
+        activeList={ui.activeList}
+        onSelectList={actions.setActiveList}
+      />
+      <MoviesFiltersPanel
+        ariaLabel="Filtros da home"
+        idPrefix="home-curated"
+        contextMode={ui.contextMode}
+        searchRaw={ui.searchRaw}
+        genreId={ui.genreId}
+        year={ui.year}
+        minVote={ui.minVote}
+        genres={genres}
+        onSelectSearchContext={() => actions.setContextMode('search')}
+        onSelectFilterContext={() => actions.setContextMode('filters')}
+        onSearchChange={actions.setSearchRaw}
+        onGenreChange={actions.setGenreId}
+        onYearChange={actions.setYear}
+        onMinVoteChange={actions.setMinVote}
+        onReset={actions.resetFilters}
+      />
     </section>
   )
 }

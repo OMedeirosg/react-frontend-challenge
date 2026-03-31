@@ -1,33 +1,34 @@
 import { Button } from '@/components/ui/button'
 
-import type { HomeCuratedToolbarSharedProps } from './home-curated-toolbar.types'
-
-type HomeCuratedListToggleProps = Pick<HomeCuratedToolbarSharedProps, 'ui' | 'actions'>
+type HomeCuratedListToggleProps = {
+  readonly activeList: 'trending' | 'popular'
+  readonly onSelectList: (mode: 'trending' | 'popular') => void
+}
 
 export function HomeCuratedListToggle(
   props: Readonly<HomeCuratedListToggleProps>,
 ) {
-  const { ui, actions } = props
+  const { activeList, onSelectList } = props
 
   return (
     <div className="inline-flex rounded-lg border border-border p-1" role="tablist">
       <Button
         type="button"
-        variant={ui.activeList === 'trending' ? 'default' : 'ghost'}
+        variant={activeList === 'trending' ? 'default' : 'ghost'}
         size="sm"
-        onClick={() => actions.setActiveList('trending')}
+        onClick={() => onSelectList('trending')}
         role="tab"
-        aria-selected={ui.activeList === 'trending'}
+        aria-selected={activeList === 'trending'}
       >
         Trending
       </Button>
       <Button
         type="button"
-        variant={ui.activeList === 'popular' ? 'default' : 'ghost'}
+        variant={activeList === 'popular' ? 'default' : 'ghost'}
         size="sm"
-        onClick={() => actions.setActiveList('popular')}
+        onClick={() => onSelectList('popular')}
         role="tab"
-        aria-selected={ui.activeList === 'popular'}
+        aria-selected={activeList === 'popular'}
       >
         Popular
       </Button>

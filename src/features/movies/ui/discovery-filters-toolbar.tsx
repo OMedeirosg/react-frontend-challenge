@@ -1,10 +1,7 @@
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import type { DiscoveryListUiState } from '@/features/movies/model/use-discovery-list-params'
 import type { MovieGenre } from '@/features/movies/types'
-import { DiscoveryAdvancedFiltersPanel } from './discovery-advanced-filters-panel'
-import { DiscoveryContextToggle } from './discovery-context-toggle'
-import { DiscoverySearchPanel } from './discovery-search-panel'
+import { MoviesFiltersPanel } from './movies-filters-panel'
 
 export type DiscoveryFiltersToolbarProps = {
   readonly className?: string
@@ -14,12 +11,9 @@ export type DiscoveryFiltersToolbarProps = {
     readonly setGenreId: (value: number | null) => void
     readonly setYear: (value: number | null) => void
     readonly setMinVote: (value: number | null) => void
-    readonly nextPage: () => void
-    readonly prevPage: () => void
     readonly reset: () => void
   }
   readonly genres?: MovieGenre[]
-  readonly totalPages?: number
   readonly contextLabel?: string
   readonly searchActive?: boolean
   readonly onSelectSearchContext?: () => void
@@ -34,7 +28,6 @@ export function DiscoveryFiltersToolbar(
     ui,
     actions,
     genres,
-    totalPages,
     contextLabel,
     searchActive = false,
     onSelectSearchContext,
@@ -46,66 +39,26 @@ export function DiscoveryFiltersToolbar(
     : 'filters'
 
   return (
-    <section className={cn('space-y-3', className)} aria-label="Filtros">
-      <DiscoveryContextToggle
+    <div className={cn(className)}>
+      <MoviesFiltersPanel
+        ariaLabel="Filtros"
+        idPrefix="discovery"
         contextMode={contextMode}
+        searchRaw={ui.searchRaw}
+        genreId={ui.genreId}
+        year={ui.year}
+        minVote={ui.minVote}
+        genres={genres}
+        contextLabel={contextLabel}
         onSelectSearchContext={onSelectSearchContext}
         onSelectFilterContext={onSelectFilterContext}
+        onSearchChange={actions.setSearchRaw}
+        onGenreChange={actions.setGenreId}
+        onYearChange={actions.setYear}
+        onMinVoteChange={actions.setMinVote}
+        onReset={actions.reset}
       />
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-        {contextMode === 'search' ? (
-          <DiscoverySearchPanel ui={ui} setSearchRaw={actions.setSearchRaw} />
-        ) : null}
-
-        {contextMode === 'filters' ? (
-          <DiscoveryAdvancedFiltersPanel
-            ui={ui}
-            genres={genres}
-            setGenreId={actions.setGenreId}
-            setYear={actions.setYear}
-            setMinVote={actions.setMinVote}
-            reset={actions.reset}
-          />
-        ) : null}
-      </div>
-
-      <p className="text-xs text-muted-foreground">
-        {contextMode === 'search'
-          ? 'Use texto para encontrar um filme específico.'
-          : 'Use filtros para descoberta avançada de catálogo.'}
-      </p>
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="text-sm text-muted-foreground">
-          {contextLabel ? (
-            <p className="text-foreground">{contextLabel}</p>
-          ) : null}
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">
-            Página {ui.page}
-            {totalPages ? ` / ${totalPages}` : ''}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={actions.prevPage}
-            disabled={ui.page <= 1}
-          >
-            Anterior
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={actions.nextPage}
-            disabled={totalPages ? ui.page >= totalPages : false}
-          >
-            Próxima
-          </Button>
-        </div>
-      </div>
-    </section>
+    </div>
   )
 }
 

@@ -17,10 +17,9 @@ export type HomeCuratedToolbarActions = {
   setActiveList: (mode: HomeCuratedListMode) => void
   setContextMode: (mode: HomeCuratedContextMode) => void
   setSearchRaw: (value: string) => void
-  clearSearch: () => void
-  setGenreIdFromRaw: (value: string) => void
-  setYearFromRaw: (value: string) => void
-  setMinVoteFromRaw: (value: string) => void
+  setGenreId: (value: number | null) => void
+  setYear: (value: number | null) => void
+  setMinVote: (value: number | null) => void
   resetFilters: () => void
 }
 
