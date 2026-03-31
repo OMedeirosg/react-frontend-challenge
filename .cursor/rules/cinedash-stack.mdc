@@ -1,0 +1,28 @@
+---
+description: Stack obrigatória e qualidade (README + critérios de avaliação)
+alwaysApply: true
+---
+
+# Stack obrigatória (desafio)
+
+- **Core:** React 18+, TypeScript **strict**, **Vite**.
+- **Server state:** TanStack Query (cache keys estáveis, invalidation, prefetch onde fizer sentido).
+- **Client state:** **Zustand** — não usar Redux/Context para estado global complexo sem justificativa no `ARCHITECTURE.md`.
+- **Rotas:** **TanStack Router** (preferencial) ou React Router v6 com data loaders.
+- **UI:** shadcn/ui + TailwindCSS.
+- **Formulários:** React Hook Form ou TanStack Form + **Zod**.
+- **Testes:** Vitest + React Testing Library; testes significativos em hooks/utilitários e integração nos fluxos principais.
+
+# Arquitetura
+
+- **FSD** ou Clean Architecture no front; separar **UI** (componentes), **lógica** (hooks) e **dados** (services/adapters API).
+- TypeScript: evitar `any`; tipar props, generics e retornos de API.
+
+# UX técnica
+
+- Loading: **Skeletons**; erros: boundaries + feedback claro; buscas com **debounce** para não sobrecarregar a API.
+- Performance: `useMemo`/`useCallback` só onde medir ganho; listagens complexas: diferencial **TanStack Table**.
+
+# Documentação
+
+- Manter `INSTRUCTIONS.md` (como rodar, projeto escolhido) e `ARCHITECTURE.md` (decisões, auth sem backend, integração TMDB).
