@@ -6,6 +6,7 @@ import {
   comparePassword,
   hashPassword,
 } from '@/features/auth/model/hashPassword'
+import { normalizeAuthEmail } from '@/features/auth/model/normalize-email'
 
 export type Account = {
   passwordHash: string
@@ -31,7 +32,8 @@ type AuthState = {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => {
-      const establishSession = (key: string) => {
+      const establishSession = (email: string) => {
+        const key = normalizeAuthEmail(email)
         set({ token: 'fake-token', currentUserEmail: key })
       }
 
@@ -41,7 +43,7 @@ export const useAuthStore = create<AuthState>()(
         currentUserEmail: null,
 
         register: async (email, password) => {
-          const key = email.toLowerCase().trim()
+          const key = normalizeAuthEmail(email)
           if (get().accounts[key]) {
             return { success: false, error: 'duplicate_email' }
           }
@@ -49,12 +51,12 @@ export const useAuthStore = create<AuthState>()(
           set((s) => ({
             accounts: { ...s.accounts, [key]: { passwordHash } },
           }))
-          establishSession(key)
+          establishSession(email)
           return { success: true }
         },
 
         login: async (email, password) => {
-          const key = email.toLowerCase().trim()
+          const key = normalizeAuthEmail(email)
           const account = get().accounts[key]
           if (!account) {
             return { success: false, error: 'invalid_credentials' }
@@ -63,7 +65,7 @@ export const useAuthStore = create<AuthState>()(
           if (!match) {
             return { success: false, error: 'invalid_credentials' }
           }
-          establishSession(key)
+          establishSession(email)
           return { success: true }
         },
 

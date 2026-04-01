@@ -85,7 +85,6 @@ describe('Movie details page — dashboard watchlist button', () => {
   beforeEach(() => {
     resetAuthStore()
     resetWatchlistStore()
-    localStorage.removeItem('cinedash-watchlist')
     setAuthenticatedUser()
     mockDetailQueriesSuccess()
   })

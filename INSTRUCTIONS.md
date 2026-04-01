@@ -6,14 +6,12 @@
 
 ## O que instalar na máquina (antes de clonar)
 
-| O quê | Detalhe |
-| ----- | -------- |
-| **Git** | Para clonar o repositório. [Download](https://git-scm.com/downloads); em Linux/macOS costuma estar disponível ou via gestor de pacotes. |
-| **Node.js** | Versão **`>=22.16.0`** (ver **`package.json`** → `engines.node`). Instale a partir de [nodejs.org](https://nodejs.org/) ou use [nvm](https://github.com/nvm-sh/nvm) / [fnm](https://github.com/Schniz/fnm) / [nvm-windows](https://github.com/coreybutler/nvm-windows). Recomenda-se **22.16.x**. Não há ficheiro `.nvmrc` na raiz. |
-| **npm** | Incluído com o Node (ex.: npm 10+). É o comando usado para instalar dependências e correr scripts. |
-| **Conta TMDB** | Registo gratuito em [themoviedb.org](https://www.themoviedb.org/) para gerar o **API Read Access Token** usado em `VITE_TMDB_CREDENTIAL_HEADER`. |
-
-Não é necessário instalar **Vite**, **TypeScript** ou bibliotecas do projeto manualmente: o comando `npm install` na pasta do repositório descarrega todas as dependências listadas no `package.json` para `node_modules/`.
+| O quê          | Detalhe                                                                                                                                                                                                                                                                                                                             |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Git**        | Para clonar o repositório. [Download](https://git-scm.com/downloads); em Linux/macOS costuma estar disponível ou via gestor de pacotes.                                                                                                                                                                                             |
+| **Node.js**    | Versão **`>=22.16.0`** (ver **`package.json`** → `engines.node`). Instale a partir de [nodejs.org](https://nodejs.org/) ou use [nvm](https://github.com/nvm-sh/nvm) / [fnm](https://github.com/Schniz/fnm) / [nvm-windows](https://github.com/coreybutler/nvm-windows). Recomenda-se **22.16.x**. Não há ficheiro `.nvmrc` na raiz. |
+| **npm**        | Incluído com o Node (ex.: npm 10+). É o comando usado para instalar dependências e correr scripts.                                                                                                                                                                                                                                  |
+| **Conta TMDB** | Registo gratuito em [themoviedb.org](https://www.themoviedb.org/) para gerar o **API Read Access Token** usado em `VITE_TMDB_CREDENTIAL_HEADER`.                                                                                                                                                                                    |
 
 ### Confirmar versões no terminal
 

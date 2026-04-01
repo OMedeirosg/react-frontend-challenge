@@ -1,9 +1,11 @@
 import { act, renderHook } from '@testing-library/react'
 
+import { useAuthStore } from '@/features/auth/store'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
 import { useToastStore } from '@/shared/model/toast-store'
 import type { MovieListItem } from '@/features/movies/types'
+import { resetAuthStore, resetWatchlistStore } from '@/test/test-utils'
 
 const movie: MovieListItem = {
   id: 99,
@@ -18,8 +20,9 @@ const movie: MovieListItem = {
 
 describe('use-watchlist-actions', () => {
   beforeEach(() => {
-    useWatchlistStore.persist.clearStorage()
-    useWatchlistStore.setState({ items: [] })
+    resetAuthStore()
+    resetWatchlistStore()
+    useAuthStore.setState({ token: 't', currentUserEmail: 'actions@test.com' })
     useToastStore.setState({ toasts: [] })
   })
 
