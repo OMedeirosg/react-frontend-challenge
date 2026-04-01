@@ -30,6 +30,8 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
     className,
     filtersSlot,
     emptyState,
+    paginationResetKey,
+    onPrefetchMovieDetail,
   } = args
 
   const [sorting, setSorting] = useState<SortingState>([])
@@ -71,8 +73,9 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
   })
 
   useEffect(() => {
+    if (paginationResetKey === undefined) return
     setPagination((prev) => ({ ...prev, pageIndex: 0 }))
-  }, [movies])
+  }, [paginationResetKey])
 
   const external = externalPagination ?? null
   const { pageSize } = pagination
@@ -143,6 +146,7 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
         onNextPage={handleNextPage}
         showEmptyState={showEmptyState}
         emptyState={emptyState}
+        onPrefetchMovieDetail={onPrefetchMovieDetail}
       />
     </Fragment>
   )

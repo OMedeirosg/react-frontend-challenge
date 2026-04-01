@@ -25,6 +25,9 @@ export type CuratedListSectionProps = {
   onPrevPage?: () => void
   onNextPage?: () => void
   tableActions?: MoviesTableActions
+  /** Ver `paginationResetKey` em `MoviesDiscoveryTable`. */
+  paginationResetKey?: string
+  readonly onPrefetchMovieDetail?: (movieId: number) => void
 }
 
 export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
@@ -44,6 +47,8 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
     onPrevPage,
     onNextPage,
     tableActions,
+    paginationResetKey,
+    onPrefetchMovieDetail,
   } = props
 
   return (
@@ -67,6 +72,8 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
           genres={genres}
           isLoading={isPending || (isFetching && !isPending)}
           actions={tableActions}
+          paginationResetKey={paginationResetKey}
+          onPrefetchMovieDetail={onPrefetchMovieDetail}
           totalResults={totalResults}
           emptyState={
             !isPending && movies.length === 0 ? (

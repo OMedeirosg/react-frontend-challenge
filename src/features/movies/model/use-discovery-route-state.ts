@@ -1,12 +1,12 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useDiscoveryFeedback } from '@/features/movies/model/use-discovery-feedback'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import {
-  discoveryDraftSchema,
   discoverySearchToListParams,
   type DiscoverySearch,
 } from '@/features/movies/model/discovery-search-schema'
+import { tryParseDiscoveryDraftFilters } from '@/features/movies/model/parse-discovery-draft-filters'
 import { useDiscoveryMovies, useMovieGenres } from '@/features/movies/queries'
 import { DEFAULT_DISCOVERY_LIST_PARAMS } from '@/features/movies/model/discovery-list-params'
 import { useToastStore } from '@/shared/model/toast-store'
@@ -33,39 +33,43 @@ export function useDiscoveryRouteState(
     ],
   )
 
-  const [draftGenreId, setDraftGenreId] = useState<number | null>(params.genreId)
-  const [draftYear, setDraftYear] = useState<number | null>(params.year)
-  const [draftMinVote, setDraftMinVote] = useState<number | null>(params.minVote)
-  const [lastSyncedKey, setLastSyncedKey] = useState(paramsKey)
+  const [draftGenreId, setDraftGenreId] = useState(params.genreId)
+  const [draftYear, setDraftYear] = useState(params.year)
+  const [draftMinVote, setDraftMinVote] = useState(params.minVote)
 
-  if (paramsKey !== lastSyncedKey) {
-    setLastSyncedKey(paramsKey)
+  useEffect(() => {
+    /* Sincroniza rascunho quando a URL muda (navegação, back/forward). */
+    /* eslint-disable react-hooks/set-state-in-effect -- estado derivado da fonte externa (search params) */
     setDraftGenreId(params.genreId)
     setDraftYear(params.year)
     setDraftMinVote(params.minVote)
-  }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [
+    params.genreId,
+    params.minVote,
+    params.mode,
+    params.page,
+    params.query,
+    params.year,
+  ])
 
   const applyFilters = useCallback(() => {
-    const parsed = discoveryDraftSchema.safeParse({
-      genreId: draftGenreId,
-      year: draftYear,
-      minVote: draftMinVote,
-    })
-    if (!parsed.success) {
-      const first = parsed.error.issues[0]?.message
-      showToast({
-        variant: 'error',
-        message: first ?? 'Verifique os filtros antes de aplicar.',
-      })
-      return
-    }
+    const parsed = tryParseDiscoveryDraftFilters(
+      {
+        genreId: draftGenreId,
+        year: draftYear,
+        minVote: draftMinVote,
+      },
+      showToast,
+    )
+    if (!parsed) return
     void navigate({
       to: '/discovery',
       search: (prev: DiscoverySearch) => ({
         ...prev,
-        genre: parsed.data.genreId ?? undefined,
-        year: parsed.data.year ?? undefined,
-        minVote: parsed.data.minVote ?? undefined,
+        genre: parsed.genreId ?? undefined,
+        year: parsed.year ?? undefined,
+        minVote: parsed.minVote ?? undefined,
         page: 1,
       }),
     })
@@ -138,6 +142,8 @@ export function useDiscoveryRouteState(
   return {
     search,
     params,
+    /** Invariante estável da lista atual (URL); usar como `paginationResetKey` na tabela. */
+    listContextKey: paramsKey,
     ui,
     actions,
     genresQuery,

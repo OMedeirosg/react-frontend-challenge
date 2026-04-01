@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/features/auth/store'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
-import { useMovieGenres } from '@/features/movies/queries'
+import { useMovieGenres, usePrefetchMovieDetail } from '@/features/movies/queries'
 import type { MovieListItem } from '@/features/movies/types'
 import { MoviesFiltersPanel } from '@/features/movies/ui/movies-filters-panel'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
@@ -32,10 +32,12 @@ export const Route = createFileRoute('/watchlist')({
 
 function WatchlistPage() {
   const navigate = useNavigate()
+  const prefetchMovieDetail = usePrefetchMovieDetail('pt-BR')
   const movies = useWatchlistStore((state) => state.items)
   const genresQuery = useMovieGenres('pt-BR')
   const watchlistActions = useWatchlistActions()
   const {
+    listPaginationResetKey,
     ui: filterUi,
     actions: filterActions,
     isApplyDisabled,
@@ -64,6 +66,8 @@ function WatchlistPage() {
           orientation="top"
           content={
             <MoviesDiscoveryTable
+              paginationResetKey={listPaginationResetKey}
+              onPrefetchMovieDetail={prefetchMovieDetail}
               filtersSlot={
                 <MoviesFiltersPanel
                   ariaLabel="Filtros da watchlist"

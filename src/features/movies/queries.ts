@@ -1,4 +1,5 @@
 export { movieKeys } from './queries/movie-keys'
+export { usePrefetchMovieDetail } from './queries/use-prefetch-movie-detail'
 export { useDiscoveryMovies } from './queries/use-discovery-movies'
 export {
   useMovieCredits,

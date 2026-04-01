@@ -1,6 +1,10 @@
 import { useCallback, useMemo, useState } from 'react'
 
-import { discoveryDraftSchema } from '@/features/movies/model/discovery-search-schema'
+import { releaseYearNumber } from '@/features/movies/lib/release-year'
+import {
+  discoveryDraftFiltersEqual,
+  tryParseDiscoveryDraftFilters,
+} from '@/features/movies/model/parse-discovery-draft-filters'
 import type { MovieListItem } from '@/features/movies/types'
 import { useToastStore } from '@/shared/model/toast-store'
 
@@ -12,12 +16,6 @@ type WatchlistFilters = {
 
 const EMPTY: WatchlistFilters = { genreId: null, year: null, minVote: null }
 
-function filtersEqual(a: WatchlistFilters, b: WatchlistFilters): boolean {
-  return (
-    a.genreId === b.genreId && a.year === b.year && a.minVote === b.minVote
-  )
-}
-
 export function useWatchlistTableFilters(movies: MovieListItem[]) {
   const showToast = useToastStore((s) => s.showToast)
 
@@ -25,16 +23,9 @@ export function useWatchlistTableFilters(movies: MovieListItem[]) {
   const [applied, setApplied] = useState<WatchlistFilters>(EMPTY)
 
   const applyFilters = useCallback(() => {
-    const parsed = discoveryDraftSchema.safeParse(draft)
-    if (!parsed.success) {
-      const first = parsed.error.issues[0]?.message
-      showToast({
-        variant: 'error',
-        message: first ?? 'Verifique os filtros antes de aplicar.',
-      })
-      return
-    }
-    setApplied(parsed.data)
+    const parsed = tryParseDiscoveryDraftFilters(draft, showToast)
+    if (!parsed) return
+    setApplied(parsed)
   }, [draft, showToast])
 
   const resetFilters = useCallback(() => {
@@ -61,7 +52,7 @@ export function useWatchlistTableFilters(movies: MovieListItem[]) {
       }
       if (
         applied.year != null &&
-        !movie.release_date.startsWith(String(applied.year))
+        releaseYearNumber(movie.release_date) !== applied.year
       ) {
         return false
       }
@@ -72,9 +63,15 @@ export function useWatchlistTableFilters(movies: MovieListItem[]) {
     })
   }, [applied.genreId, applied.minVote, applied.year, movies])
 
-  const isApplyDisabled = filtersEqual(draft, applied)
+  const isApplyDisabled = discoveryDraftFiltersEqual(draft, applied)
+
+  const listPaginationResetKey = useMemo(
+    () => `${applied.genreId}-${applied.year}-${applied.minVote}`,
+    [applied.genreId, applied.minVote, applied.year],
+  )
 
   return {
+    listPaginationResetKey,
     ui: {
       genreId: draft.genreId,
       year: draft.year,

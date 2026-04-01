@@ -1,6 +1,9 @@
 import { useCallback, useState } from 'react'
 
-import { discoveryDraftSchema } from '@/features/movies/model/discovery-search-schema'
+import {
+  discoveryDraftFiltersEqual,
+  tryParseDiscoveryDraftFilters,
+} from '@/features/movies/model/parse-discovery-draft-filters'
 import { useToastStore } from '@/shared/model/toast-store'
 
 export type HomeCuratedListMode = 'trending' | 'popular'
@@ -15,12 +18,6 @@ const EMPTY_FILTERS: HomeCuratedFilters = {
   genreId: null,
   year: null,
   minVote: null,
-}
-
-function filtersEqual(a: HomeCuratedFilters, b: HomeCuratedFilters): boolean {
-  return (
-    a.genreId === b.genreId && a.year === b.year && a.minVote === b.minVote
-  )
 }
 
 export function useHomeCuratedState() {
@@ -41,16 +38,9 @@ export function useHomeCuratedState() {
     activeList === 'trending' ? setTrendingPage : setPopularPage
 
   const applyFilters = useCallback(() => {
-    const parsed = discoveryDraftSchema.safeParse(filtersDraft)
-    if (!parsed.success) {
-      const first = parsed.error.issues[0]?.message
-      showToast({
-        variant: 'error',
-        message: first ?? 'Verifique os filtros antes de aplicar.',
-      })
-      return
-    }
-    setFiltersApplied(parsed.data)
+    const parsed = tryParseDiscoveryDraftFilters(filtersDraft, showToast)
+    if (!parsed) return
+    setFiltersApplied(parsed)
     setActivePage(1)
   }, [filtersDraft, setActivePage, showToast])
 
@@ -72,7 +62,10 @@ export function useHomeCuratedState() {
     setFiltersDraft((prev) => ({ ...prev, minVote }))
   }, [])
 
-  const isApplyDisabled = filtersEqual(filtersDraft, filtersApplied)
+  const isApplyDisabled = discoveryDraftFiltersEqual(
+    filtersDraft,
+    filtersApplied,
+  )
 
   const prevPage = useCallback(() => {
     setActivePage((p) => Math.max(1, p - 1))
