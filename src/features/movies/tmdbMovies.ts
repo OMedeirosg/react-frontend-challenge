@@ -1,174 +1,25 @@
-import { api } from '@/lib/api'
-import type {
-  MovieCreditsResponse,
-  MovieDetails,
-  MovieGenresResponse,
-  MovieVideosResponse,
-  PaginatedMoviesResponse,
-} from './types'
+export type {
+  DiscoverMoviesParams,
+  MovieCreditsParams,
+  MovieDetailsParams,
+  MovieGenresParams,
+  MovieVideosParams,
+  PopularMoviesParams,
+  TrendingMoviesParams,
+} from './contracts/tmdb.contracts'
 
-export type PopularMoviesParams = {
-  page?: number
-  /** ISO 639-1 + ISO 3166-1, ex.: pt-BR */
-  language?: string
-}
+export type { SearchMoviesParams } from './tmdb-list-api'
 
-export async function getPopularMovies(
-  params: PopularMoviesParams = {},
-): Promise<PaginatedMoviesResponse> {
-  const { page = 1, language = 'pt-BR' } = params
-  const search = new URLSearchParams({
-    page: String(page),
-    language,
-  })
-  return api.get<PaginatedMoviesResponse>(
-    `/movie/popular?${search.toString()}`,
-  )
-}
+export {
+  discoverMovies,
+  getMovieGenres,
+  getPopularMovies,
+  getTrendingMovies,
+  searchMovies,
+} from './tmdb-list-api'
 
-export type TrendingMoviesParams = {
-  page?: number
-  /** day | week */
-  timeWindow?: 'day' | 'week'
-  language?: string
-}
-
-export async function getTrendingMovies(
-  params: TrendingMoviesParams = {},
-): Promise<PaginatedMoviesResponse> {
-  const { page = 1, timeWindow = 'day', language = 'pt-BR' } = params
-  const search = new URLSearchParams({
-    page: String(page),
-    language,
-  })
-  return api.get<PaginatedMoviesResponse>(
-    `/trending/movie/${timeWindow}?${search.toString()}`,
-  )
-}
-
-export type SearchMoviesParams = {
-  query: string
-  page?: number
-  language?: string
-  includeAdult?: boolean
-  signal?: AbortSignal
-}
-
-export async function searchMovies(
-  params: SearchMoviesParams,
-): Promise<PaginatedMoviesResponse> {
-  const {
-    query,
-    page = 1,
-    language = 'pt-BR',
-    includeAdult = false,
-    signal,
-  } = params
-
-  const search = new URLSearchParams({
-    query,
-    page: String(page),
-    language,
-    include_adult: String(includeAdult),
-  })
-
-  return api.get<PaginatedMoviesResponse>(
-    `/search/movie?${search.toString()}`,
-    { signal },
-  )
-}
-
-export type DiscoverMoviesParams = {
-  page?: number
-  language?: string
-  genreId?: number | null
-  year?: number | null
-  minVote?: number | null
-  sortBy?: string
-}
-
-export async function discoverMovies(
-  params: DiscoverMoviesParams = {},
-): Promise<PaginatedMoviesResponse> {
-  const {
-    page = 1,
-    language = 'pt-BR',
-    genreId = null,
-    year = null,
-    minVote = null,
-    sortBy = 'popularity.desc',
-  } = params
-
-  const search = new URLSearchParams({
-    page: String(page),
-    language,
-    sort_by: sortBy,
-    include_adult: 'false',
-    include_video: 'false',
-  })
-
-  if (genreId != null) search.set('with_genres', String(genreId))
-  if (year != null) search.set('primary_release_year', String(year))
-  if (minVote != null) search.set('vote_average.gte', String(minVote))
-
-  return api.get<PaginatedMoviesResponse>(
-    `/discover/movie?${search.toString()}`,
-  )
-}
-
-export type MovieGenresParams = {
-  language?: string
-}
-
-export async function getMovieGenres(
-  params: MovieGenresParams = {},
-): Promise<MovieGenresResponse> {
-  const { language = 'pt-BR' } = params
-  const search = new URLSearchParams({ language })
-  return api.get<MovieGenresResponse>(
-    `/genre/movie/list?${search.toString()}`,
-  )
-}
-
-export type MovieDetailsParams = {
-  movieId: number
-  language?: string
-}
-
-export async function getMovieDetails(
-  params: MovieDetailsParams,
-): Promise<MovieDetails> {
-  const { movieId, language = 'pt-BR' } = params
-  const search = new URLSearchParams({ language })
-  return api.get<MovieDetails>(`/movie/${movieId}?${search.toString()}`)
-}
-
-export type MovieCreditsParams = {
-  movieId: number
-  language?: string
-}
-
-export async function getMovieCredits(
-  params: MovieCreditsParams,
-): Promise<MovieCreditsResponse> {
-  const { movieId, language = 'pt-BR' } = params
-  const search = new URLSearchParams({ language })
-  return api.get<MovieCreditsResponse>(
-    `/movie/${movieId}/credits?${search.toString()}`,
-  )
-}
-
-export type MovieVideosParams = {
-  movieId: number
-  language?: string
-}
-
-export async function getMovieVideos(
-  params: MovieVideosParams,
-): Promise<MovieVideosResponse> {
-  const { movieId, language = 'pt-BR' } = params
-  const search = new URLSearchParams({ language })
-  return api.get<MovieVideosResponse>(
-    `/movie/${movieId}/videos?${search.toString()}`,
-  )
-}
+export {
+  getMovieCredits,
+  getMovieDetails,
+  getMovieVideos,
+} from './tmdb-detail-api'
