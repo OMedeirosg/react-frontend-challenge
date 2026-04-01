@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { z } from 'zod'
 
-import { ApiError } from '@/lib/api'
+import { ApiError, RateLimitError } from '@/lib/api'
 
 import { TmdbContractError } from '../contracts/tmdb.contracts'
 import {
@@ -13,6 +13,7 @@ import {
   movieDetailErrorMessage,
   movieDetailErrorToastMessage,
   movieQueryErrorToastKey,
+  tmdbRateLimitUserMessage,
 } from './movie-query-errors'
 
 function contractErr(): TmdbContractError {
@@ -24,8 +25,22 @@ function contractErr(): TmdbContractError {
 describe('movie-query-errors', () => {
   it('movieQueryErrorToastKey distingue Api, contrato e desconhecido', () => {
     expect(movieQueryErrorToastKey(new ApiError(404, null))).toBe('api-404')
+    expect(movieQueryErrorToastKey(new RateLimitError(null))).toBe('api-429')
+    expect(movieQueryErrorToastKey(new ApiError(429, null))).toBe('api-429')
     expect(movieQueryErrorToastKey(contractErr())).toBe('contract-response')
     expect(movieQueryErrorToastKey(new Error('x'))).toBe('unknown')
+  })
+
+  it('429 usa mensagem de limite sem código HTTP genérico', () => {
+    expect(discoveryListInlineErrorMessage(new RateLimitError(null))).toBe(
+      tmdbRateLimitUserMessage,
+    )
+    expect(discoveryErrorToastMessage(new ApiError(429, null))).toBe(
+      tmdbRateLimitUserMessage,
+    )
+    expect(discoveryListInlineErrorMessage(new ApiError(429, null))).not.toContain(
+      '429',
+    )
   })
 
   it('mensagens inline discovery diferenciam HTTP e contrato', () => {

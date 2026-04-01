@@ -1,6 +1,17 @@
-import { ApiError } from '@/lib/api'
+import { ApiError, isRateLimitError } from '@/lib/api'
 
 import { TmdbContractError } from '../contracts/tmdb.contracts'
+
+/** Limite de pedidos (429) — sem números de segundos nem pormenores técnicos. */
+export const tmdbRateLimitUserMessage =
+  'O catálogo está temporariamente indisponível por limite de pedidos. Tente novamente dentro de momentos.' as const
+
+function isTooManyRequests(error: unknown): boolean {
+  return (
+    isRateLimitError(error) ||
+    (error instanceof ApiError && error.status === 429)
+  )
+}
 
 export function isTmdbContractError(
   error: unknown,
@@ -12,6 +23,7 @@ export function isTmdbContractError(
  * Chave estável para deduplicar toasts (não inclui stack nem mensagem bruta).
  */
 export function movieQueryErrorToastKey(error: unknown): string {
+  if (isTooManyRequests(error)) return 'api-429'
   if (error instanceof ApiError) return `api-${error.status}`
   if (isTmdbContractError(error)) return `contract-${error.phase}`
   return 'unknown'
@@ -24,6 +36,9 @@ export function curatedListInlineErrorMessage(
   activeList: CuratedListMode,
 ): string {
   const label = activeList === 'trending' ? 'Trending' : 'Popular'
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Erro ${error.status}: falha ao buscar ${label}.`
   }
@@ -34,6 +49,9 @@ export function curatedListInlineErrorMessage(
 }
 
 export function discoveryListInlineErrorMessage(error: unknown): string {
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Erro ${error.status}: falha ao buscar filmes.`
   }
@@ -44,6 +62,9 @@ export function discoveryListInlineErrorMessage(error: unknown): string {
 }
 
 export function discoveryErrorToastMessage(error: unknown): string {
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Falha ao buscar filmes (erro ${error.status}).`
   }
@@ -58,6 +79,9 @@ export function curatedErrorToastMessage(
   list: CuratedListMode,
 ): string {
   const label = list === 'trending' ? 'Trending' : 'Popular'
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Falha ao carregar ${label} (erro ${error.status}).`
   }
@@ -75,6 +99,9 @@ export const invalidMovieIdParamMessage = 'ID de filme inválido.' as const
 
 /** Toast na falha da query principal de detalhes — tom alinhado a discovery/curated. */
 export function movieDetailErrorToastMessage(error: unknown): string {
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Falha ao carregar detalhes (erro ${error.status}).`
   }
@@ -85,6 +112,9 @@ export function movieDetailErrorToastMessage(error: unknown): string {
 }
 
 export function movieDetailErrorMessage(error: unknown): string {
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Não foi possível carregar os detalhes (erro ${error.status}).`
   }
@@ -105,6 +135,9 @@ export const watchlistFilteredEmptyDescription =
   'Nenhum filme da sua watchlist corresponde aos filtros atuais.' as const
 
 export function movieCreditsInlineErrorMessage(error: unknown): string {
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
   if (error instanceof ApiError) {
     return `Não foi possível carregar o elenco (erro ${error.status}).`
   }

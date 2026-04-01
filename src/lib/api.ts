@@ -1,3 +1,10 @@
+import {
+  compute429WaitMs,
+  delay,
+  parseRetryAfterMs,
+  TMDB_RATE_LIMIT_MAX_HTTP_ATTEMPTS,
+} from './tmdb-rate-limit'
+
 const TMDB_API_BASE_DEFAULT = 'https://api.themoviedb.org/3'
 
 function tmdbBaseUrl(): string {
@@ -23,6 +30,21 @@ export class ApiError extends Error {
   }
 }
 
+/** Exhausted in-request 429 retries; optional hint from last Retry-After (TanStack may ignore). */
+export class RateLimitError extends ApiError {
+  readonly retryAfterMs?: number
+
+  constructor(body: unknown, retryAfterMs?: number, message?: string) {
+    super(429, body, message ?? 'Too Many Requests')
+    this.name = 'RateLimitError'
+    this.retryAfterMs = retryAfterMs
+  }
+}
+
+export function isRateLimitError(error: unknown): error is RateLimitError {
+  return error instanceof RateLimitError
+}
+
 type RequestOptions = Omit<RequestInit, 'body'> & {
   body?: unknown
 }
@@ -31,28 +53,51 @@ async function request<T>(
   path: string,
   options: RequestOptions = {},
 ): Promise<T> {
-  const { body, headers, ...rest } = options
+  const { body, headers, signal, ...rest } = options
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
+  const url = `${tmdbBaseUrl()}${normalizedPath}`
 
-  const response = await fetch(`${tmdbBaseUrl()}${normalizedPath}`, {
-    ...rest,
-    headers: {
-      'Content-Type': 'application/json',
-      ...tmdbAuthHeaders(),
-      ...headers,
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
+  let httpAttempt = 0
 
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => null)
-    throw new ApiError(response.status, errorBody)
+  while (true) {
+    httpAttempt += 1
+
+    const response = await fetch(url, {
+      ...rest,
+      signal,
+      headers: {
+        'Content-Type': 'application/json',
+        ...tmdbAuthHeaders(),
+        ...headers,
+      },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+
+    if (response.status === 429) {
+      const retryAfterMs = parseRetryAfterMs(response.headers.get('Retry-After'))
+      if (httpAttempt < TMDB_RATE_LIMIT_MAX_HTTP_ATTEMPTS) {
+        const waitMs = compute429WaitMs(
+          httpAttempt,
+          retryAfterMs,
+          () => Math.random(),
+        )
+        await delay(waitMs, signal ?? undefined)
+        continue
+      }
+
+      const errorBody = await response.json().catch(() => null)
+      throw new RateLimitError(errorBody, retryAfterMs)
+    }
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => null)
+      throw new ApiError(response.status, errorBody)
+    }
+
+    if (response.status === 204) return undefined as T
+
+    return response.json() as Promise<T>
   }
-
-  // 204 No Content
-  if (response.status === 204) return undefined as T
-
-  return response.json() as Promise<T>
 }
 
 export const api = {
