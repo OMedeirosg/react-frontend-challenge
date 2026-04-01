@@ -4,26 +4,12 @@ import { useDiscoveryFeedback } from '@/features/movies/model/use-discovery-feed
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import {
   discoveryDraftSchema,
+  discoverySearchToListParams,
   type DiscoverySearch,
 } from '@/features/movies/model/discovery-search-schema'
 import { useDiscoveryMovies, useMovieGenres } from '@/features/movies/queries'
-import {
-  DEFAULT_DISCOVERY_LIST_PARAMS,
-  normalizeDiscoveryListParams,
-  type DiscoveryListParams,
-} from '@/features/movies/model/discovery-list-params'
+import { DEFAULT_DISCOVERY_LIST_PARAMS } from '@/features/movies/model/discovery-list-params'
 import { useToastStore } from '@/shared/model/toast-store'
-
-function toDiscoveryParams(search: DiscoverySearch): DiscoveryListParams {
-  return normalizeDiscoveryListParams({
-    query: search.q ?? '',
-    mode: search.mode ?? DEFAULT_DISCOVERY_LIST_PARAMS.mode,
-    page: search.page ?? DEFAULT_DISCOVERY_LIST_PARAMS.page,
-    genreId: search.genre ?? null,
-    year: search.year ?? null,
-    minVote: search.minVote ?? null,
-  })
-}
 
 export function useDiscoveryRouteState(
   search: DiscoverySearch,
@@ -32,7 +18,7 @@ export function useDiscoveryRouteState(
   >,
 ) {
   const showToast = useToastStore((s) => s.showToast)
-  const params = useMemo(() => toDiscoveryParams(search), [search])
+  const params = useMemo(() => discoverySearchToListParams(search), [search])
 
   const paramsKey = useMemo(
     () =>
@@ -103,7 +89,6 @@ export function useDiscoveryRouteState(
         setDraftGenreId(value)
       },
       setYear: (value: number | null) => {
-        if (value != null && Math.abs(value) < 1000) return
         setDraftYear(value)
       },
       setMinVote: (value: number | null) => {
@@ -143,7 +128,12 @@ export function useDiscoveryRouteState(
   const watchlistActions = useWatchlistActions()
   const { emptyMessage } = useDiscoveryFeedback({ params, moviesQuery })
 
-  const isApplyDisabled = moviesQuery.isFetching
+  const draftMatchesApplied =
+    draftGenreId === params.genreId &&
+    draftYear === params.year &&
+    draftMinVote === params.minVote
+
+  const isApplyDisabled = moviesQuery.isFetching || draftMatchesApplied
 
   return {
     search,

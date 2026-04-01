@@ -2,7 +2,6 @@ import { discoveryListInlineErrorMessage } from '@/features/movies/model/movie-q
 import type { MovieListItem } from '@/features/movies/types'
 import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-toolbar'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
-import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
 import {
   EmptyState,
@@ -29,6 +28,18 @@ export function DiscoveryPageView(props: Readonly<DiscoveryPageViewProps>) {
     navigate,
   } = ctx
 
+  const results = moviesQuery.data?.results ?? []
+
+  const filtersToolbar = (
+    <DiscoveryFiltersToolbar
+      className="w-full"
+      ui={ui}
+      actions={actions}
+      genres={genresQuery.data?.genres}
+      isApplyDisabled={isApplyDisabled}
+    />
+  )
+
   return (
     <div className="p-4">
       <h1 className="mb-1 text-2xl font-semibold">Discovery</h1>
@@ -38,66 +49,63 @@ export function DiscoveryPageView(props: Readonly<DiscoveryPageViewProps>) {
 
       <MoviesTableLayout
         orientation="top"
-        filters={
-          <DiscoveryFiltersToolbar
-            className="w-full"
-            ui={ui}
-            actions={actions}
-            genres={genresQuery.data?.genres}
-            isApplyDisabled={isApplyDisabled}
-          />
-        }
         content={
           <>
             {moviesQuery.isError ? (
-              <QueryInlineError>
-                {discoveryListInlineErrorMessage(moviesQuery.error)}
-              </QueryInlineError>
-            ) : null}
+              <>
+                <div className="mb-3 flex w-full min-w-0 flex-wrap items-end justify-between gap-3">
+                  <div className="min-w-0 flex-1">{filtersToolbar}</div>
+                </div>
+                <QueryInlineError>
+                  {discoveryListInlineErrorMessage(moviesQuery.error)}
+                </QueryInlineError>
+              </>
+            ) : (
+              <>
+                {moviesQuery.isFetching && !moviesQuery.isPending ? (
+                  <QueryFetchingHint>Aplicando filtros…</QueryFetchingHint>
+                ) : null}
 
-            {moviesQuery.isPending ? (
-              <MoviesDiscoveryTableSkeleton className="w-full" />
-            ) : null}
-
-            {moviesQuery.isFetching && !moviesQuery.isPending ? (
-              <QueryFetchingHint>Aplicando filtros…</QueryFetchingHint>
-            ) : null}
-
-            {moviesQuery.data?.results.length === 0 ? (
-              <EmptyState description={emptyMessage} />
-            ) : null}
-
-            {moviesQuery.data?.results.length ? (
-              <MoviesDiscoveryTable
-                movies={moviesQuery.data.results}
-                totalResults={moviesQuery.data.total_results}
-                className="w-full"
-                genres={genresQuery.data?.genres}
-                isLoading={moviesQuery.isFetching && !moviesQuery.isPending}
-                actions={{
-                  onToggleWatchlist: watchlistActions.toggleFromMovie,
-                  isInWatchlist: watchlistActions.isInWatchlist,
-                  onOpenDetails: (movie: MovieListItem) => {
-                    void navigate({
-                      to: '/movie/$id',
-                      params: { id: String(movie.id) },
-                    })
-                  },
-                }}
-                externalPagination={{
-                  page: ui.page,
-                  totalPages: moviesQuery.data?.total_pages,
-                  onPrevPage: actions.prevPage,
-                  onNextPage: actions.nextPage,
-                  disablePrev: ui.page <= 1 || moviesQuery.isPending,
-                  disableNext:
+                <MoviesDiscoveryTable
+                  filtersSlot={filtersToolbar}
+                  movies={results}
+                  totalResults={moviesQuery.data?.total_results}
+                  className="w-full"
+                  genres={genresQuery.data?.genres}
+                  isLoading={
                     moviesQuery.isPending ||
-                    (moviesQuery.data?.total_pages
-                      ? ui.page >= moviesQuery.data.total_pages
-                      : false),
-                }}
-              />
-            ) : null}
+                    (moviesQuery.isFetching && !moviesQuery.isPending)
+                  }
+                  emptyState={
+                    !moviesQuery.isPending && results.length === 0 ? (
+                      <EmptyState description={emptyMessage} />
+                    ) : undefined
+                  }
+                  actions={{
+                    onToggleWatchlist: watchlistActions.toggleFromMovie,
+                    isInWatchlist: watchlistActions.isInWatchlist,
+                    onOpenDetails: (movie: MovieListItem) => {
+                      void navigate({
+                        to: '/movie/$id',
+                        params: { id: String(movie.id) },
+                      })
+                    },
+                  }}
+                  externalPagination={{
+                    page: ui.page,
+                    totalPages: moviesQuery.data?.total_pages,
+                    onPrevPage: actions.prevPage,
+                    onNextPage: actions.nextPage,
+                    disablePrev: ui.page <= 1 || moviesQuery.isPending,
+                    disableNext:
+                      moviesQuery.isPending ||
+                      (moviesQuery.data?.total_pages
+                        ? ui.page >= moviesQuery.data.total_pages
+                        : false),
+                  }}
+                />
+              </>
+            )}
           </>
         }
       />
