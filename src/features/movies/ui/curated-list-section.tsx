@@ -1,5 +1,5 @@
+import { curatedListInlineErrorMessage } from '@/features/movies/model/movie-query-errors'
 import type { MovieListItem } from '@/features/movies/types'
-import { ApiError } from '@/lib/api'
 
 import type { MoviesTableActions } from './movies-discovery-table-columns'
 import { MoviesDiscoveryTable } from './movies-discovery-table'
@@ -46,9 +46,7 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
     <section className="space-y-2">
       {isError ? (
         <p className="text-destructive" role="alert">
-          {error instanceof ApiError
-            ? `Erro ${error.status}: falha ao buscar ${activeList}.`
-            : `Não foi possível carregar ${activeList}.`}
+          {curatedListInlineErrorMessage(error, activeList)}
         </p>
       ) : null}
       {isPending ? <MoviesDiscoveryTableSkeleton className="w-full" /> : null}

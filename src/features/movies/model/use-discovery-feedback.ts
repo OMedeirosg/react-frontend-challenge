@@ -1,8 +1,11 @@
 import { useEffect, useRef } from 'react'
 
-import { ApiError } from '@/lib/api'
 import { useToastStore } from '@/shared/model/toast-store'
 
+import {
+  discoveryErrorToastMessage,
+  movieQueryErrorToastKey,
+} from './movie-query-errors'
 import { useDiscoveryMovies } from '../queries'
 import type { DiscoveryListParams } from './discovery-list-params'
 
@@ -29,19 +32,15 @@ export function useDiscoveryFeedback(
       lastErrorToastRef.current = null
       return
     }
-    const errorKey =
-      moviesQuery.error instanceof ApiError
-        ? `api-${moviesQuery.error.status}`
-        : 'generic'
+    const errorKey = movieQueryErrorToastKey(moviesQuery.error)
 
     if (lastErrorToastRef.current === errorKey) return
     lastErrorToastRef.current = errorKey
 
-    const message =
-      moviesQuery.error instanceof ApiError
-        ? `Falha ao buscar filmes (erro ${moviesQuery.error.status}).`
-        : 'Falha ao buscar filmes. Verifique a conexão e tente novamente.'
-    showToast({ variant: 'error', message })
+    showToast({
+      variant: 'error',
+      message: discoveryErrorToastMessage(moviesQuery.error),
+    })
   }, [moviesQuery.error, moviesQuery.isError, showToast])
 
   useEffect(() => {

@@ -19,7 +19,7 @@ import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-
 import { MoviesDiscoveryTableSkeleton } from '@/features/movies/ui/movies-discovery-table-skeleton'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
-import { ApiError } from '@/lib/api'
+import { discoveryListInlineErrorMessage } from '@/features/movies/model/movie-query-errors'
 import { useToastStore } from '@/shared/model/toast-store'
 import {
   DEFAULT_DISCOVERY_LIST_PARAMS,
@@ -182,9 +182,7 @@ function DiscoveryComponent() {
           <>
             {moviesQuery.isError ? (
               <p className="w-full text-destructive" role="alert">
-                {moviesQuery.error instanceof ApiError
-                  ? `Erro ${moviesQuery.error.status}: falha ao buscar filmes.`
-                  : 'Não foi possível carregar a lista.'}
+                {discoveryListInlineErrorMessage(moviesQuery.error)}
               </p>
             ) : null}
 

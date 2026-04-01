@@ -10,6 +10,10 @@ import {
   useMovieDetails,
   useMovieVideos,
 } from '@/features/movies/queries'
+import {
+  movieCreditsInlineErrorMessage,
+  movieDetailErrorMessage,
+} from '@/features/movies/model/movie-query-errors'
 import { useToastStore } from '@/shared/model/toast-store'
 
 export const Route = createFileRoute('/movie/$id')({
@@ -50,8 +54,8 @@ function MovieDetailsPage() {
   const castContent = (() => {
     if (creditsQuery.isError) {
       return (
-        <p className="text-sm text-muted-foreground">
-          Não foi possível carregar o elenco.
+        <p className="text-sm text-muted-foreground" role="alert">
+          {movieCreditsInlineErrorMessage(creditsQuery.error)}
         </p>
       )
     }
@@ -85,8 +89,10 @@ function MovieDetailsPage() {
   if (detailsQuery.isError || !movie) {
     return (
       <div className="p-4">
-        <p className="text-sm text-destructive">
-          Não foi possível carregar os detalhes deste filme.
+        <p className="text-sm text-destructive" role="alert">
+          {detailsQuery.isError
+            ? movieDetailErrorMessage(detailsQuery.error)
+            : 'Não foi possível carregar os detalhes deste filme.'}
         </p>
       </div>
     )
