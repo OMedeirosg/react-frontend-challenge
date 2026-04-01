@@ -27,7 +27,7 @@ export const Route = createFileRoute('/')({
 
 function HomeComponent() {
   const navigate = useNavigate()
-  const { ui, actions } = useHomeCuratedState()
+  const { ui, actions, isApplyDisabled } = useHomeCuratedState()
   const watchlistActions = useWatchlistActions()
   const genresQuery = useMovieGenres('pt-BR')
   const trendingQuery = useTrendingMovies(ui.trendingPage, 'day')
@@ -38,7 +38,12 @@ function HomeComponent() {
   const activePage = ui.activePage
 
   const { filteredMovies, emptyMessage } = useHomeCuratedFilteredMovies({
-    ui,
+    ui: {
+      activeList: ui.activeList,
+      genreId: ui.appliedGenreId,
+      year: ui.appliedYear,
+      minVote: ui.appliedMinVote,
+    },
     trendingData: trendingQuery.data,
     popularData: popularQuery.data,
   })
@@ -67,16 +72,17 @@ function HomeComponent() {
       </div>
       <MoviesTableLayout
         orientation="top"
-        filters={
-          <HomeCuratedToolbar
-            className="space-y-2"
-            ui={ui}
-            actions={actions}
-            genres={genresQuery.data?.genres}
-          />
-        }
         content={
           <CuratedListSection
+            filtersSlot={
+              <HomeCuratedToolbar
+                className="space-y-2"
+                ui={ui}
+                actions={actions}
+                isApplyDisabled={isApplyDisabled}
+                genres={genresQuery.data?.genres}
+              />
+            }
             activeList={ui.activeList}
             activePage={activePage}
             totalPages={activeQuery.data?.total_pages}
