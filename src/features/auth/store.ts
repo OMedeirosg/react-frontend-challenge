@@ -30,41 +30,48 @@ type AuthState = {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
-      accounts: {},
-      token: null,
-      currentUserEmail: null,
-
-      register: async (email, password) => {
-        const key = email.toLowerCase().trim()
-        if (get().accounts[key]) {
-          return { success: false, error: 'duplicate_email' }
-        }
-        const passwordHash = await hashPassword(password)
-        set((s) => ({
-          accounts: { ...s.accounts, [key]: { passwordHash } },
-        }))
-        return { success: true }
-      },
-
-      login: async (email, password) => {
-        const key = email.toLowerCase().trim()
-        const account = get().accounts[key]
-        if (!account) {
-          return { success: false, error: 'invalid_credentials' }
-        }
-        const match = await comparePassword(password, account.passwordHash)
-        if (!match) {
-          return { success: false, error: 'invalid_credentials' }
-        }
+    (set, get) => {
+      const establishSession = (key: string) => {
         set({ token: 'fake-token', currentUserEmail: key })
-        return { success: true }
-      },
+      }
 
-      logout: () => {
-        set({ token: null, currentUserEmail: null })
-      },
-    }),
+      return {
+        accounts: {},
+        token: null,
+        currentUserEmail: null,
+
+        register: async (email, password) => {
+          const key = email.toLowerCase().trim()
+          if (get().accounts[key]) {
+            return { success: false, error: 'duplicate_email' }
+          }
+          const passwordHash = await hashPassword(password)
+          set((s) => ({
+            accounts: { ...s.accounts, [key]: { passwordHash } },
+          }))
+          establishSession(key)
+          return { success: true }
+        },
+
+        login: async (email, password) => {
+          const key = email.toLowerCase().trim()
+          const account = get().accounts[key]
+          if (!account) {
+            return { success: false, error: 'invalid_credentials' }
+          }
+          const match = await comparePassword(password, account.passwordHash)
+          if (!match) {
+            return { success: false, error: 'invalid_credentials' }
+          }
+          establishSession(key)
+          return { success: true }
+        },
+
+        logout: () => {
+          set({ token: null, currentUserEmail: null })
+        },
+      }
+    },
     {
       name: 'cinedash-auth',
       storage: createJSONStorage(() => cookieStorage),

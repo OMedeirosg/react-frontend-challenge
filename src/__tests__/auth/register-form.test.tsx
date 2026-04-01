@@ -31,20 +31,23 @@ describe('RegisterForm', () => {
     resetAuthStore()
   })
 
-  it('registo válido navega para /login', async () => {
+  it('registo válido inicia sessão e navega para /', async () => {
     const user = userEvent.setup()
     const { router } = renderWithApp('/register')
 
     await fillRegisterForm(user, 'new@test.com', 'secret12')
 
     await waitFor(() => {
-      expect(router.state.location.pathname).toBe('/login')
+      expect(router.state.location.pathname).toBe('/')
     })
+    expect(useAuthStore.getState().token).toBe('fake-token')
+    expect(useAuthStore.getState().currentUserEmail).toBe('new@test.com')
   })
 
   it('email duplicado mostra erro', async () => {
     const user = userEvent.setup()
     await useAuthStore.getState().register('dup@test.com', 'secret12')
+    useAuthStore.getState().logout()
     renderWithApp('/register')
 
     await fillRegisterForm(user, 'dup@test.com', 'secret12')
