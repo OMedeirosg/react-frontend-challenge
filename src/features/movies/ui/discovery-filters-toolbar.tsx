@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils'
-import type { DiscoveryListUiState } from '@/features/movies/model/use-discovery-list-params'
+import type { DiscoveryListUiState } from '@/features/movies/model/discovery-list-ui.types'
 import type { MovieGenre } from '@/features/movies/types'
 import { Button } from '@/components/ui/button'
 import { MoviesFiltersPanel } from './movies-filters-panel'
