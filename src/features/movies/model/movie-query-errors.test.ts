@@ -11,6 +11,7 @@ import {
   discoveryListInlineErrorMessage,
   movieCreditsInlineErrorMessage,
   movieDetailErrorMessage,
+  movieDetailErrorToastMessage,
   movieQueryErrorToastKey,
 } from './movie-query-errors'
 
@@ -58,5 +59,10 @@ describe('movie-query-errors', () => {
       '403',
     )
     expect(movieCreditsInlineErrorMessage(contractErr())).toContain('elenco')
+  })
+
+  it('toast de detalhe do filme cobre API e contrato', () => {
+    expect(movieDetailErrorToastMessage(new ApiError(502, null))).toContain('502')
+    expect(movieDetailErrorToastMessage(contractErr())).toContain('validar')
   })
 })
