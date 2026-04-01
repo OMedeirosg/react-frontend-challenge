@@ -130,6 +130,7 @@ describe('Home curated flow', () => {
     renderWithApp('/')
 
     await user.selectOptions(await screen.findByLabelText('Gênero'), '28')
+    await user.click(screen.getByRole('button', { name: 'Aplicar filtros' }))
 
     await waitFor(() => {
       expect(screen.getByText('Duna: Parte Dois')).toBeTruthy()

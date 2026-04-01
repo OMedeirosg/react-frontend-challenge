@@ -44,12 +44,14 @@ export function buildMoviesDiscoveryColumns(
           header: 'Data de Lançamento',
           cell: (info) => releaseDateLabel(info.getValue()),
           enableSorting: false,
+          enableHiding: true,
         })
       : columnHelper.accessor((row) => releaseYear(row), {
           id: 'year',
           header: 'Ano',
           cell: ({ row }) => releaseYear(row.original),
           sortingFn: 'alphanumeric',
+          enableHiding: true,
         })
 
   return [
@@ -58,6 +60,7 @@ export function buildMoviesDiscoveryColumns(
       header: 'Pôster',
       cell: ({ row }) => <PosterTableCell movie={row.original} />,
       enableSorting: false,
+      enableHiding: true,
     }),
     columnHelper.accessor('title', {
       header: 'Título',
@@ -68,6 +71,7 @@ export function buildMoviesDiscoveryColumns(
         />
       ),
       sortingFn: 'alphanumeric',
+      enableHiding: true,
     }),
     columnHelper.accessor((row) => genreSortValue(row, genreNameById), {
       id: 'genre',
@@ -76,12 +80,14 @@ export function buildMoviesDiscoveryColumns(
         <GenreTableCell movie={row.original} genreNameById={genreNameById} />
       ),
       sortingFn: 'alphanumeric',
+      enableHiding: true,
     }),
     dateColumn,
     columnHelper.accessor('vote_average', {
       header: 'Nota',
       cell: (info) => info.getValue().toFixed(1),
       sortingFn: 'basic',
+      enableHiding: true,
     }),
     columnHelper.display({
       id: 'actions',
@@ -101,6 +107,7 @@ export function buildMoviesDiscoveryColumns(
         )
       },
       enableSorting: false,
+      enableHiding: false,
     }),
   ]
 }

@@ -1,14 +1,16 @@
+import type { ReactNode } from 'react'
+
 import { curatedListInlineErrorMessage } from '@/features/movies/model/movie-query-errors'
 import type { MovieListItem } from '@/features/movies/types'
 import { EmptyState, QueryInlineError } from '@/shared/ui/feedback'
 
 import type { MoviesTableActions } from './movies-discovery-table-columns'
 import { MoviesDiscoveryTable } from './movies-discovery-table'
-import { MoviesDiscoveryTableSkeleton } from './movies-discovery-table-skeleton'
 
 type CuratedListMode = 'trending' | 'popular'
 
 export type CuratedListSectionProps = {
+  readonly filtersSlot?: ReactNode
   activeList: CuratedListMode
   activePage: number
   totalPages?: number
@@ -27,6 +29,7 @@ export type CuratedListSectionProps = {
 
 export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
   const {
+    filtersSlot,
     activeList,
     activePage,
     totalPages,
@@ -46,22 +49,30 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
   return (
     <section className="space-y-2">
       {isError ? (
-        <QueryInlineError>
-          {curatedListInlineErrorMessage(error, activeList)}
-        </QueryInlineError>
-      ) : null}
-      {isPending ? <MoviesDiscoveryTableSkeleton className="w-full" /> : null}
-      {!isPending && !isError && movies.length === 0 ? (
-        <EmptyState description={emptyMessage} />
-      ) : null}
-      {movies.length > 0 ? (
+        <>
+          {filtersSlot ? (
+            <div className="mb-3 flex w-full min-w-0 flex-wrap items-end justify-between gap-3">
+              <div className="min-w-0 flex-1">{filtersSlot}</div>
+            </div>
+          ) : null}
+          <QueryInlineError>
+            {curatedListInlineErrorMessage(error, activeList)}
+          </QueryInlineError>
+        </>
+      ) : (
         <MoviesDiscoveryTable
+          filtersSlot={filtersSlot}
           movies={movies}
           className="w-full"
           genres={genres}
-          isLoading={isFetching && !isPending}
+          isLoading={isPending || (isFetching && !isPending)}
           actions={tableActions}
           totalResults={totalResults}
+          emptyState={
+            !isPending && movies.length === 0 ? (
+              <EmptyState description={emptyMessage} />
+            ) : undefined
+          }
           externalPagination={
             onPrevPage && onNextPage
               ? {
@@ -76,8 +87,7 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
               : undefined
           }
         />
-      ) : null}
+      )}
     </section>
   )
 }
-

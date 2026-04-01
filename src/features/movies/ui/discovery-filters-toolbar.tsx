@@ -30,11 +30,21 @@ export function DiscoveryFiltersToolbar(
   } = props
 
   return (
-    <div className={cn(className, 'space-y-2')}>
+    <div className={cn(className)}>
       <MoviesFiltersPanel
         ariaLabel="Filtros"
         idPrefix="discovery"
         filtersInline
+        inlineTrailingSlot={
+          <Button
+            type="button"
+            className="h-8"
+            disabled={isApplyDisabled}
+            onClick={actions.applyFilters}
+          >
+            Aplicar filtros
+          </Button>
+        }
         genreId={ui.genreId}
         year={ui.year}
         minVote={ui.minVote}
@@ -44,15 +54,6 @@ export function DiscoveryFiltersToolbar(
         onMinVoteChange={actions.setMinVote}
         onReset={actions.reset}
       />
-      <div className="flex flex-wrap justify-end gap-2">
-        <Button
-          type="button"
-          disabled={isApplyDisabled}
-          onClick={actions.applyFilters}
-        >
-          Aplicar filtros
-        </Button>
-      </div>
     </div>
   )
 }

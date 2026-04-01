@@ -58,6 +58,9 @@ describe('MoviesDiscoveryTable sorting', () => {
     render(<MoviesDiscoveryTable movies={movies} genres={genres} />)
 
     expect(
+      screen.getByRole('button', { name: 'Colunas da tabela' }),
+    ).toBeTruthy()
+    expect(
       screen.getByText(/20 itens por página de 3 total/),
     ).toBeTruthy()
   })

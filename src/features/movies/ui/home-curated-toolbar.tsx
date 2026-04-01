@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { Button } from '@/components/ui/button'
 import type { MovieGenre } from '@/features/movies/types'
 
 import { MoviesFiltersPanel } from './movies-filters-panel'
@@ -15,12 +16,14 @@ export type HomeCuratedToolbarProps = {
     setYear: (value: number | null) => void
     setMinVote: (value: number | null) => void
     resetFilters: () => void
+    applyFilters: () => void
   }
+  readonly isApplyDisabled?: boolean
   genres?: MovieGenre[]
 }
 
 export function HomeCuratedToolbar(props: Readonly<HomeCuratedToolbarProps>) {
-  const { className, ui, actions, genres } = props
+  const { className, ui, actions, genres, isApplyDisabled = false } = props
 
   return (
     <section className={cn('space-y-2', className)} aria-label="Filtros da home">
@@ -28,6 +31,16 @@ export function HomeCuratedToolbar(props: Readonly<HomeCuratedToolbarProps>) {
         ariaLabel="Filtros da home"
         idPrefix="home-curated"
         filtersInline
+        inlineTrailingSlot={
+          <Button
+            type="button"
+            className="h-8"
+            disabled={isApplyDisabled}
+            onClick={actions.applyFilters}
+          >
+            Aplicar filtros
+          </Button>
+        }
         genreId={ui.genreId}
         year={ui.year}
         minVote={ui.minVote}

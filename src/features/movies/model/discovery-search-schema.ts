@@ -16,6 +16,22 @@ export type DiscoverySearch = {
   minVote?: number
 }
 
+export function discoverySearchToListParams(
+  search: DiscoverySearch,
+): DiscoveryListParams {
+  return normalizeDiscoveryListParams({
+    query: search.q ?? '',
+    mode: search.mode ?? DEFAULT_DISCOVERY_LIST_PARAMS.mode,
+    page: search.page ?? DEFAULT_DISCOVERY_LIST_PARAMS.page,
+    genreId: search.genre ?? null,
+    year: search.year ?? null,
+    minVote: search.minVote ?? null,
+  })
+}
+
+/** Alias do nome antigo (`toDiscoveryParams`); mantido para HMR/bundles que ainda referenciem o identificador. */
+export const toDiscoveryParams = discoverySearchToListParams
+
 function parseMode(value: unknown): DiscoveryListMode | undefined {
   return value === 'popular' || value === 'trending' || value === 'discover'
     ? value
