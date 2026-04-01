@@ -22,7 +22,7 @@ export function MovieDetailsPageSkeleton(
       </div>
 
       <div className="grid gap-4 md:grid-cols-[220px_1fr]">
-        <Skeleton className="aspect-[2/3] w-full max-w-[220px] rounded-md" />
+        <Skeleton className="aspect-2/3 w-full max-w-[220px] rounded-md" />
         <div className="space-y-3">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-full" />
