@@ -125,14 +125,11 @@ describe('Home curated flow', () => {
     })
   })
 
-  it('aplica busca contextual na lista ativa', async () => {
+  it('aplica filtros na lista ativa', async () => {
     const user = userEvent.setup()
     renderWithApp('/')
 
-    const searchInput = await screen.findByLabelText('Busca', {
-      selector: '#home-curated-search',
-    })
-    await user.type(searchInput, 'Duna')
+    await user.selectOptions(await screen.findByLabelText('Gênero'), '28')
 
     await waitFor(() => {
       expect(screen.getByText('Duna: Parte Dois')).toBeTruthy()
