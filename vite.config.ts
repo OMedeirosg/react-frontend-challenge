@@ -13,15 +13,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      ...(!isTestMode
-        ? [
+      ...(isTestMode
+        ? []
+        : [
             tanstackRouter({
               target: 'react',
-              routeFileIgnorePattern: '\\.test\\.',
+              routeFileIgnorePattern: String.raw`\.test\.`,
             }),
             tailwindcss(),
-          ]
-        : []),
+          ]),
       react(),
     ],
     resolve: {
@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => {
     test: {
       environment: 'happy-dom',
       globals: true,
+      setupFiles: ['./src/test/vitest-setup.ts'],
     },
   }
 })
