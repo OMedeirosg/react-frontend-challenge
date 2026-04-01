@@ -54,13 +54,15 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
   - se `query` estiver vazio: usa o fluxo do modo (`popular`, `trending` ou `discover` com filtros)
 - **Camada 1 (Imagens)**: helper puro `tmdbPosterUrl`.
 - **Camada 2 (Tabela)**: `MoviesDiscoveryTable` renderiza `MovieListItem[]` e exibe gêneros com nomes quando recebe `genres`.
-- **Camada 3 (Busca/Filtros)**: `useDiscoveryListParams` controla input + debounce e produz `DiscoveryListParams` estável.
+- **Camada 3 (Busca/Filtros no `/discovery`)**: estado **orientado à URL**. A rota valida a query string com [`discoveryUrlSearchSchema`](./src/features/movies/model/discovery-search-schema.ts); [`useDiscoveryRouteState`](./src/features/movies/model/use-discovery-route-state.ts) deriva `DiscoveryListParams` via `discoverySearchToListParams`, mantém **rascunho** de filtros (gênero/ano/nota) até “Aplicar filtros”, e navega com `useNavigate` para persistir página e critérios. A **barra de busca global** (topbar) atualiza o parâmetro `q` na URL com debounce — não há um segundo hook paralelo de lista para o mesmo fluxo.
 - **Camada 4 (Query/UX)**: `useDiscoveryMovies` e `useMovieGenres` buscam dados e a página trata loading/erro/vazio.
+
+Tipos partilhados de UI de lista (`DiscoveryListUiState`, `DiscoveryListParams`) vivem em [`discovery-list-params.ts`](./src/features/movies/model/discovery-list-params.ts) e [`discovery-list-ui.types.ts`](./src/features/movies/model/discovery-list-ui.types.ts); validação de rascunho de filtros reutiliza `discoveryDraftSchema` e [`tryParseDiscoveryDraftFilters`](./src/features/movies/model/parse-discovery-draft-filters.ts) onde a UI tem botão “Aplicar filtros”.
 
 ### Rotas e UX de descoberta
 
 - [`src/routes/index.tsx`](./src/routes/index.tsx): dashboard com listas curadas de **Trending** e **Popular**, alternáveis em uma única grade. A home possui modo de **Pesquisa contextual** e modo de **Filtros avançados**, com paginação própria por lista.
-- [`src/routes/discovery.tsx`](./src/routes/discovery.tsx): fluxo de **catálogo geral** com busca textual, filtros e paginação para exploração ampla do acervo.
+- [`src/routes/discovery.tsx`](./src/routes/discovery.tsx): `validateSearch` com `discoveryUrlSearchSchema`; componente usa `useDiscoveryRouteState` para o fluxo de **catálogo geral** com busca textual (URL), filtros e paginação para exploração ampla do acervo.
 - Na barra de filtros, a UI explicita o contexto atual:
   - `Searching for "..."` quando há texto
   - `Discovering with filters` quando não há query textual
@@ -115,8 +117,8 @@ O *root* (`__root.tsx`) apenas monta o layout; não aplica auth globalmente — 
 ## Funcionalidades transversais (estado atual)
 
 - **Watchlist:** Zustand + `persist` em [`src/features/movies/model/watchlist-store.ts`](./src/features/movies/model/watchlist-store.ts); adicionar/remover a partir da home, discovery, detalhe e página dedicada; persistência após reload, **escopada por conta** no cliente (`localStorage` por email normalizado).
-- **Tema claro/escuro:** Zustand + `persist` em [`src/shared/model/theme-store.ts`](./src/shared/model/theme-store.ts); [`ThemeProvider`](./src/providers/ThemeProvider.tsx) aplica a classe `dark` no `documentElement`; toggle na top bar ([`theme-toggle.tsx`](./src/components/theme-toggle.tsx)).
-- **Tabela de filmes (listagens):** **TanStack Table** em [`src/features/movies/ui/use-movies-discovery-table.tsx`](./src/features/movies/ui/use-movies-discovery-table.tsx) e colunas em `movies-discovery-table-columns.tsx` (ordenação, integração com dados TMDB).
+- **Tema claro/escuro:** Zustand + `persist` em [`src/shared/model/theme-store.ts`](./src/shared/model/theme-store.ts) (estado inicial fixo; reidratação só via `persist`, sem ler o mesmo `localStorage` em duplicado); [`ThemeProvider`](./src/providers/ThemeProvider.tsx) aplica a classe `dark` no `documentElement`; toggle na top bar ([`theme-toggle.tsx`](./src/components/theme-toggle.tsx)).
+- **Tabela de filmes (listagens):** **TanStack Table** em [`src/features/movies/ui/use-movies-discovery-table.tsx`](./src/features/movies/ui/use-movies-discovery-table.tsx) e colunas em `movies-discovery-table-columns.tsx` (ordenação, integração com dados TMDB). A paginação local não deve depender da referência do array `movies` (refetch); as páginas passam um `paginationResetKey` estável (URL, página da API, filtros aplicados).
 - **Erros na UI:** mensagens centralizadas em [`movie-query-errors.ts`](./src/features/movies/model/movie-query-errors.ts); toasts para falhas de listas curadas; estados de loading com skeletons (ex.: detalhe do filme). **Não** há React Error Boundary dedicado no projeto; falhas de render não são isoladas por boundary — o foco é tratamento de erros de rede/contrato e feedback inline (ex.: [`QueryInlineError`](./src/shared/ui/feedback/query-inline-error.tsx)).
 
 ## Testes (Vitest + RTL)
