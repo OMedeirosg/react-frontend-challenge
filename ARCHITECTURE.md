@@ -21,6 +21,22 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 - Documentação: [The Movie Database API](https://developer.themoviedb.org/docs).
 - Base da API: **`VITE_TMDB_BASE_URL`** (opcional; padrão no código `https://api.themoviedb.org/3`). Autenticação v3 com **API Read Access Token**: header `Authorization: Bearer <token>`. O JWT fica em **`VITE_TMDB_CREDENTIAL_HEADER`** (veja [INSTRUCTIONS.md](./INSTRUCTIONS.md)).
 - Cliente HTTP em [`src/lib/api.ts`](./src/lib/api.ts); endpoints de filmes em [`src/features/movies/tmdbMovies.ts`](./src/features/movies/tmdbMovies.ts) e cache TanStack Query com chaves estáveis em `movieKeys` ([`src/features/movies/queries.ts`](./src/features/movies/queries.ts)).
+- **Contratos TMDB (Zod):** schemas e tipos inferidos vivem em [`src/features/movies/contracts/`](./src/features/movies/contracts/): o barrel [`tmdb.contracts.ts`](./src/features/movies/contracts/tmdb.contracts.ts) reexporta sub-módulos (`tmdb-requests`, `tmdb-movie-list`, `tmdb-movie-detail`, `tmdb-pagination`, `tmdb-parse`) para uma **única fonte de verdade** sem duplicar tipos. Os adapters (`tmdb-http.ts`, `tmdb-list-api.ts`, `tmdb-detail-api.ts`) chamam `parseTmdbRequest` / `parseTmdbResponse`; falhas de validação lançam `TmdbContractError`. Tipos de domínio reexportados em [`types.ts`](./src/features/movies/types.ts).
+- **Extensão de campos:** alterar ou estender o schema Zod correspondente → tipos inferidos atualizam-se automaticamente → UI consome tipos de `types`/contratos. Regras (filtros locais, agregação de busca, debounce) permanecem em [`model/`](./src/features/movies/model/), não nos schemas de resposta.
+- **Erros na UX:** `ApiError` (HTTP) vs `TmdbContractError` (JSON inválido face ao contrato) — mensagens para o utilizador centralizadas em [`movie-query-errors.ts`](./src/features/movies/model/movie-query-errors.ts) (sem stack nem pormenores de Zod).
+
+#### Resumo TMDB: endpoint → schema → consumo
+
+| Rótulo / fluxo | Schema Zod (resposta) | Onde entra na UI |
+| ---------------- | ---------------------- | ----------------- |
+| `GET /movie/popular` | `paginatedMoviesResponseSchema` | Home curated (Popular), Discovery modo popular |
+| `GET /trending/movie/{timeWindow}` | `paginatedMoviesResponseSchema` | Home curated (Trending) |
+| `GET /search/movie` | `paginatedMoviesResponseSchema` | Discovery (query); agregação em `queries.ts` + `model/aggregated-discovery-search` |
+| `GET /discover/movie` | `paginatedMoviesResponseSchema` | Discovery modo discover |
+| `GET /genre/movie/list` | `movieGenresResponseSchema` | Toolbars / mapeamento `genre_ids` → nome |
+| `GET /movie/:id` | `movieDetailsResponseSchema` | Rota `/movie/$id` |
+| `GET /movie/:id/credits` | `movieCreditsResponseSchema` | Secção elenco em `/movie/$id` |
+| `GET /movie/:id/videos` | `movieVideosResponseSchema` | Trailer em `/movie/$id` |
 - **Imagens (posters):** a TMDB devolve `poster_path` relativo à CDN. A montagem da URL fica centralizada em [`src/features/movies/lib/tmdb-poster-url.ts`](./src/features/movies/lib/tmdb-poster-url.ts) (`https://image.tmdb.org/t/p/{size}/...`). Na UI: se o helper retornar `null`, usar placeholder sem `<img>`; se existir URL e a imagem falhar ao carregar, tratar com `onError` e o mesmo placeholder (ver comentário no módulo).
 - O cliente HTTP pode ficar em uma camada **`services`** ou **`api`**: funções puras + Query nos hooks ou em loaders, mantendo **UI separada de fetch**.
 
