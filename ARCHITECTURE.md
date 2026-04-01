@@ -2,7 +2,7 @@
 
 ## Visão geral
 
-CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da TMDB** pelo browser. Não há backend próprio no escopo do desafio: autenticação real fica de fora; o desafio prevê **auth simulada** (validação com Zod + token fictício em `localStorage` ou cookie) e rotas protegidas no front.
+CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da TMDB** pelo browser. Não há backend próprio no escopo do desafio: a **auth simulada** usa validação com Zod nos formulários, **token fictício** (`fake-token`) e persistência da sessão via **Zustand `persist`** com armazenamento em **cookie** (`src/features/auth/store.ts`). Rotas que exigem utilizador autenticado usam `beforeLoad` no TanStack Router e redirecionam para `/login` quando não há sessão.
 
 ## Por que essa stack?
 
@@ -86,7 +86,7 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 
 Objetivo: separar **UI**, **lógica (hooks)** e **dados (serviços/adapters)**.
 
-- **`src/routes` + `routeTree.gen`** — Rotas TanStack Router (file-based).
+- **`src/routes` + [`routeTree.gen.ts`](./src/routeTree.gen.ts)** — Rotas TanStack Router (file-based; o ficheiro `.gen` é gerado pelo plugin e não deve ser editado à mão).
 - **`src/layouts`** — Shell da aplicação (navegação, outlet).
 - **`src/providers`** — Providers globais (ex.: React Query).
 - **`src/components/ui`** — Componentes shadcn e primitivos reutilizáveis.
@@ -100,6 +100,31 @@ Essa árvore pode ser estendida com **`entities`** (modelos de domínio / mapeam
 - **Prettier** (`prettier.config.js`, plugin Tailwind para ordenar classes).
 - **ESLint** flat config + **eslint-config-prettier** para não conflitar com o Prettier.
 
-## O que documentar conforme evoluir
+## Rotas: público vs protegido
 
-Integração concreta com TMDB (endpoints, tratamento de rate limit, imagens base URL), estratégia de **cache keys** do Query, e fluxo da **watchlist** + tema escuro/claro persistido devem ser refletidos aqui à medida que forem implementados.
+Definição em `src/routes/*.tsx` e árvore em [`routeTree.gen.ts`](./src/routeTree.gen.ts).
+
+| Path | Acesso |
+| ---- | ------ |
+| `/login`, `/register` | Públicos para quem **não** tem sessão; com token válido, `beforeLoad` redireciona para `/`. |
+| `/`, `/discovery`, `/watchlist`, `/movie/$id` | **Protegidos:** `beforeLoad` chama `useAuthStore.persist.rehydrate()` e, sem `token`, redireciona para `/login`. |
+
+O *root* (`__root.tsx`) apenas monta o layout; não aplica auth globalmente — a proteção é por rota.
+
+## Funcionalidades transversais (estado atual)
+
+- **Watchlist:** Zustand + `persist` em [`src/features/movies/model/watchlist-store.ts`](./src/features/movies/model/watchlist-store.ts); adicionar/remover a partir da home, discovery, detalhe e página dedicada; persistência após reload.
+- **Tema claro/escuro:** Zustand + `persist` em [`src/shared/model/theme-store.ts`](./src/shared/model/theme-store.ts); [`ThemeProvider`](./src/providers/ThemeProvider.tsx) aplica a classe `dark` no `documentElement`; toggle na top bar ([`theme-toggle.tsx`](./src/components/theme-toggle.tsx)).
+- **Tabela de filmes (listagens):** **TanStack Table** em [`src/features/movies/ui/use-movies-discovery-table.tsx`](./src/features/movies/ui/use-movies-discovery-table.tsx) e colunas em `movies-discovery-table-columns.tsx` (ordenação, integração com dados TMDB).
+- **Erros na UI:** mensagens centralizadas em [`movie-query-errors.ts`](./src/features/movies/model/movie-query-errors.ts); toasts para falhas de listas curadas; estados de loading com skeletons (ex.: detalhe do filme). **Não** há React Error Boundary dedicado no projeto; falhas de render não são isoladas por boundary — o foco é tratamento de erros de rede/contrato e feedback inline (ex.: [`QueryInlineError`](./src/shared/ui/feedback/query-inline-error.tsx)).
+
+## Testes (Vitest + RTL)
+
+- **Configuração:** `vite.config.ts` (Vitest), ambiente `happy-dom` onde aplicável.
+- **Auth / rotas:** formulários de login e registo (`src/__tests__/auth/`), *guard* de rotas (`auth-guard.test.tsx`).
+- **Filmes / TMDB:** contratos Zod, `tmdbMovies`, poster URL, `movie-query-errors`, tabela (ordenção).
+- **Fluxos de UI:** home curada, discovery (feedback, URL), watchlist, detalhe + watchlist, layout/top bar, debounce partilhado.
+
+## O que rever se o projeto evoluir
+
+Rate limits da TMDB, telemetria, Error Boundaries por rota se passar a haver componentes com maior risco de falha de render, e qualquer novo endpoint ou camada BFF.
