@@ -11,6 +11,7 @@ export type CuratedListSectionProps = {
   activeList: CuratedListMode
   activePage: number
   totalPages?: number
+  totalResults?: number
   isPending: boolean
   isFetching: boolean
   isError: boolean
@@ -28,6 +29,7 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
     activeList,
     activePage,
     totalPages,
+    totalResults,
     isPending,
     isFetching,
     isError,
@@ -60,6 +62,7 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
           genres={genres}
           isLoading={isFetching && !isPending}
           actions={tableActions}
+          totalResults={totalResults}
           externalPagination={
             onPrevPage && onNextPage
               ? {
