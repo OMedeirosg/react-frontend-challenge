@@ -1,4 +1,6 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
+
+import type { DiscoverySearch } from '@/features/movies/model/discovery-search-schema'
 import { LogOut, Search } from 'lucide-react'
 import { useState } from 'react'
 
@@ -61,7 +63,14 @@ export function AppTopBar() {
           <form
             onSubmit={async (event) => {
               event.preventDefault()
-              await navigate({ to: '/discovery' })
+              await navigate({
+                to: '/discovery',
+                search: (prev: DiscoverySearch) => {
+                  const q = searchDraft.trim()
+                  return { ...prev, q: q || undefined, page: undefined }
+                },
+              })
+              setSearchDraft('')
             }}
             className="flex items-center gap-1.5"
           >

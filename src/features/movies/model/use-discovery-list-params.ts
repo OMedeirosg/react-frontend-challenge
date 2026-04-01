@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { useDebouncedValue } from '@/shared/lib/use-debounced-value'
 
@@ -12,6 +12,10 @@ import {
 export type UseDiscoveryListParamsOptions = {
   /** Debounce do texto de busca antes de virar `params.query`. */
   readonly searchDebounceMs?: number
+  /** Estado inicial (geralmente vindo de URL params). */
+  readonly initialState?: Partial<DiscoveryListUiState>
+  /** Estado externo para reidratar em cenários como back/forward. */
+  readonly controlledState?: Partial<DiscoveryListUiState>
 }
 
 export type DiscoveryListUiState = {
@@ -40,20 +44,44 @@ export function useDiscoveryListParams(
     readonly reset: () => void
   }
 } {
-  const { searchDebounceMs = 400 } = options
+  const { searchDebounceMs = 400, initialState, controlledState } = options
 
   const clampPage = (n: number) => Math.max(1, Math.trunc(n))
 
-  const [searchRaw, setSearchRaw] = useState('')
+  const [searchRaw, setSearchRaw] = useState(initialState?.searchRaw ?? '')
   const [mode, setMode] = useState<DiscoveryListMode>(
-    DEFAULT_DISCOVERY_LIST_PARAMS.mode,
+    initialState?.mode ?? DEFAULT_DISCOVERY_LIST_PARAMS.mode,
   )
-  const [page, setPage] = useState(DEFAULT_DISCOVERY_LIST_PARAMS.page)
-  const [genreId, setGenreId] = useState<number | null>(null)
-  const [year, setYear] = useState<number | null>(null)
-  const [minVote, setMinVote] = useState<number | null>(null)
+  const [page, setPage] = useState(
+    initialState?.page ?? DEFAULT_DISCOVERY_LIST_PARAMS.page,
+  )
+  const [genreId, setGenreId] = useState<number | null>(initialState?.genreId ?? null)
+  const [year, setYear] = useState<number | null>(initialState?.year ?? null)
+  const [minVote, setMinVote] = useState<number | null>(initialState?.minVote ?? null)
 
   const queryDebounced = useDebouncedValue(searchRaw, searchDebounceMs)
+
+  useEffect(() => {
+    if (!controlledState) return
+    if (controlledState.searchRaw !== undefined && controlledState.searchRaw !== searchRaw) {
+      setSearchRaw(controlledState.searchRaw)
+    }
+    if (controlledState.mode !== undefined && controlledState.mode !== mode) {
+      setMode(controlledState.mode)
+    }
+    if (controlledState.page !== undefined && controlledState.page !== page) {
+      setPage(controlledState.page)
+    }
+    if (controlledState.genreId !== undefined && controlledState.genreId !== genreId) {
+      setGenreId(controlledState.genreId)
+    }
+    if (controlledState.year !== undefined && controlledState.year !== year) {
+      setYear(controlledState.year)
+    }
+    if (controlledState.minVote !== undefined && controlledState.minVote !== minVote) {
+      setMinVote(controlledState.minVote)
+    }
+  }, [controlledState, genreId, minVote, mode, page, searchRaw, year])
 
   const params = useMemo(() => {
     return normalizeDiscoveryListParams({

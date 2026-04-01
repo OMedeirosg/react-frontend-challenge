@@ -8,7 +8,6 @@ import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/features/auth/store'
-import { useDebouncedValue } from '@/shared/lib/use-debounced-value'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
 import { useMovieGenres } from '@/features/movies/queries'
 import type { MovieListItem } from '@/features/movies/types'
@@ -32,23 +31,18 @@ function WatchlistPage() {
   const movies = useWatchlistStore((state) => state.items)
   const genresQuery = useMovieGenres('pt-BR')
   const watchlistActions = useWatchlistActions()
-  const [searchRaw, setSearchRaw] = useState('')
-  const [contextMode, setContextMode] = useState<'search' | 'filters'>('search')
   const [genreId, setGenreId] = useState<number | null>(null)
   const [year, setYear] = useState<number | null>(null)
   const [minVote, setMinVote] = useState<number | null>(null)
-  const searchDebounced = useDebouncedValue(searchRaw, 300)
 
   const filteredMovies = useMemo(() => {
-    const q = searchDebounced.trim().toLowerCase()
     return movies.filter((movie) => {
-      if (q && !movie.title.toLowerCase().includes(q)) return false
       if (genreId != null && !movie.genre_ids.includes(genreId)) return false
       if (year != null && !movie.release_date.startsWith(String(year))) return false
       if (minVote != null && movie.vote_average < minVote) return false
       return true
     })
-  }, [genreId, minVote, movies, searchDebounced, year])
+  }, [genreId, minVote, movies, year])
 
   return (
     <div className="p-4">
@@ -69,32 +63,20 @@ function WatchlistPage() {
         </div>
       ) : (
         <MoviesTableLayout
+          orientation="top"
           filters={
             <MoviesFiltersPanel
               ariaLabel="Filtros da watchlist"
               idPrefix="watchlist"
-              contextMode={contextMode}
-              searchRaw={searchRaw}
+              filtersInline
               genreId={genreId}
               year={year}
               minVote={minVote}
               genres={genresQuery.data?.genres}
-              onSelectSearchContext={() => {
-                setContextMode('search')
-                setGenreId(null)
-                setYear(null)
-                setMinVote(null)
-              }}
-              onSelectFilterContext={() => {
-                setContextMode('filters')
-                setSearchRaw('')
-              }}
-              onSearchChange={setSearchRaw}
               onGenreChange={setGenreId}
               onYearChange={setYear}
               onMinVoteChange={setMinVote}
               onReset={() => {
-                setSearchRaw('')
                 setGenreId(null)
                 setYear(null)
                 setMinVote(null)
