@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 
+import { releaseYearNumber } from '@/features/movies/lib/release-year'
 import type { MovieListItem, PaginatedMoviesResponse } from '../types'
 import type { HomeCuratedListMode } from './use-home-curated-state'
 
@@ -27,7 +28,10 @@ export function useHomeCuratedFilteredMovies(
 
     const filteredMovies = sourceList.filter((movie: MovieListItem) => {
       if (ui.genreId != null && !movie.genre_ids.includes(ui.genreId)) return false
-      if (ui.year != null && Number(movie.release_date?.slice(0, 4) || 0) !== ui.year) {
+      if (
+        ui.year != null &&
+        releaseYearNumber(movie.release_date) !== ui.year
+      ) {
         return false
       }
       if (ui.minVote != null && movie.vote_average < ui.minVote) return false
