@@ -8,6 +8,7 @@ import type { MovieListItem } from '@/features/movies/types'
 import {
   useMovieGenres,
   usePopularMovies,
+  usePrefetchMovieDetail,
   useTrendingMovies,
 } from '@/features/movies/queries'
 import { CuratedListSection } from '@/features/movies/ui/curated-list-section'
@@ -27,6 +28,7 @@ export const Route = createFileRoute('/')({
 
 function HomeComponent() {
   const navigate = useNavigate()
+  const prefetchMovieDetail = usePrefetchMovieDetail('pt-BR')
   const { ui, actions, isApplyDisabled } = useHomeCuratedState()
   const watchlistActions = useWatchlistActions()
   const genresQuery = useMovieGenres('pt-BR')
@@ -36,6 +38,8 @@ function HomeComponent() {
 
   const activeQuery = ui.activeList === 'trending' ? trendingQuery : popularQuery
   const activePage = ui.activePage
+
+  const homeTablePaginationResetKey = `${ui.activeList}-${activePage}-${ui.appliedGenreId}-${ui.appliedYear}-${ui.appliedMinVote}`
 
   const { filteredMovies, emptyMessage } = useHomeCuratedFilteredMovies({
     ui: {
@@ -74,6 +78,8 @@ function HomeComponent() {
         orientation="top"
         content={
           <CuratedListSection
+            paginationResetKey={homeTablePaginationResetKey}
+            onPrefetchMovieDetail={prefetchMovieDetail}
             filtersSlot={
               <HomeCuratedToolbar
                 className="space-y-2"

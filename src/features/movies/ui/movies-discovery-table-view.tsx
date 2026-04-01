@@ -40,6 +40,7 @@ type MoviesDiscoveryTableViewProps = {
   readonly onNextPage: () => void
   readonly showEmptyState: boolean
   readonly emptyState?: ReactNode
+  readonly onPrefetchMovieDetail?: (movieId: number) => void
 }
 
 export function MoviesDiscoveryTableView(
@@ -62,6 +63,7 @@ export function MoviesDiscoveryTableView(
     onNextPage,
     showEmptyState,
     emptyState,
+    onPrefetchMovieDetail,
   } = props
 
   const visibleColumns = table.getVisibleLeafColumns()
@@ -116,6 +118,9 @@ export function MoviesDiscoveryTableView(
                         ? 'bg-amber-500/5 hover:bg-amber-500/10'
                         : undefined,
                     )}
+                    onMouseEnter={() => {
+                      onPrefetchMovieDetail?.(row.original.id)
+                    }}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td

@@ -23,4 +23,12 @@ export type UseMoviesDiscoveryTableArgs = {
   readonly filtersSlot?: ReactNode
   /** Conteúdo exibido no card quando não há filmes e não está carregando. */
   readonly emptyState?: ReactNode
+  /**
+   * Quando este valor muda, a paginação local da tabela volta à primeira página.
+   * Deve refletir o “contexto” da lista (URL/query, página da API, filtros aplicados),
+   * não a referência do array `movies` (refetch pode criar novo array com os mesmos dados).
+   */
+  readonly paginationResetKey?: string
+  /** Prefetch do detalhe TMDB ao passar o rato na linha (ex.: antes de abrir `/movie/$id`). */
+  readonly onPrefetchMovieDetail?: (movieId: number) => void
 }

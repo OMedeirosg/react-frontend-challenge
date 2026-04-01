@@ -1,4 +1,5 @@
 import { discoveryListInlineErrorMessage } from '@/features/movies/model/movie-query-errors'
+import { usePrefetchMovieDetail } from '@/features/movies/queries'
 import type { MovieListItem } from '@/features/movies/types'
 import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-toolbar'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
@@ -26,7 +27,10 @@ export function DiscoveryPageView(props: Readonly<DiscoveryPageViewProps>) {
     emptyMessage,
     isApplyDisabled,
     navigate,
+    listContextKey,
   } = ctx
+
+  const prefetchMovieDetail = usePrefetchMovieDetail('pt-BR')
 
   const results = moviesQuery.data?.results ?? []
 
@@ -69,6 +73,8 @@ export function DiscoveryPageView(props: Readonly<DiscoveryPageViewProps>) {
                 <MoviesDiscoveryTable
                   filtersSlot={filtersToolbar}
                   movies={results}
+                  paginationResetKey={listContextKey}
+                  onPrefetchMovieDetail={prefetchMovieDetail}
                   totalResults={moviesQuery.data?.total_results}
                   className="w-full"
                   genres={genresQuery.data?.genres}
