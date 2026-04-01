@@ -1,8 +1,11 @@
 import { useEffect, useRef } from 'react'
 
-import { ApiError } from '@/lib/api'
 import { useToastStore } from '@/shared/model/toast-store'
 
+import {
+  curatedErrorToastMessage,
+  movieQueryErrorToastKey,
+} from './movie-query-errors'
 import { usePopularMovies, useTrendingMovies } from '../queries'
 
 export function useCuratedListErrorToasts(
@@ -19,19 +22,13 @@ export function useCuratedListErrorToasts(
       return
     }
 
-    const errorKey =
-      trendingQuery.error instanceof ApiError
-        ? `api-${trendingQuery.error.status}`
-        : 'generic'
+    const errorKey = movieQueryErrorToastKey(trendingQuery.error)
 
     if (lastTrendingErrorRef.current === errorKey) return
     lastTrendingErrorRef.current = errorKey
     showToast({
       variant: 'error',
-      message:
-        trendingQuery.error instanceof ApiError
-          ? `Falha ao carregar Trending (erro ${trendingQuery.error.status}).`
-          : 'Falha ao carregar Trending.',
+      message: curatedErrorToastMessage(trendingQuery.error, 'trending'),
     })
   }, [showToast, trendingQuery.error, trendingQuery.isError])
 
@@ -41,19 +38,13 @@ export function useCuratedListErrorToasts(
       return
     }
 
-    const errorKey =
-      popularQuery.error instanceof ApiError
-        ? `api-${popularQuery.error.status}`
-        : 'generic'
+    const errorKey = movieQueryErrorToastKey(popularQuery.error)
 
     if (lastPopularErrorRef.current === errorKey) return
     lastPopularErrorRef.current = errorKey
     showToast({
       variant: 'error',
-      message:
-        popularQuery.error instanceof ApiError
-          ? `Falha ao carregar Popular (erro ${popularQuery.error.status}).`
-          : 'Falha ao carregar Popular.',
+      message: curatedErrorToastMessage(popularQuery.error, 'popular'),
     })
   }, [popularQuery.error, popularQuery.isError, showToast])
 }

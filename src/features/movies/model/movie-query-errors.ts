@@ -1,0 +1,88 @@
+import { ApiError } from '@/lib/api'
+
+import { TmdbContractError } from '../contracts/tmdb.contracts'
+
+export function isTmdbContractError(
+  error: unknown,
+): error is TmdbContractError {
+  return error instanceof TmdbContractError
+}
+
+/**
+ * Chave estável para deduplicar toasts (não inclui stack nem mensagem bruta).
+ */
+export function movieQueryErrorToastKey(error: unknown): string {
+  if (error instanceof ApiError) return `api-${error.status}`
+  if (isTmdbContractError(error)) return `contract-${error.phase}`
+  return 'unknown'
+}
+
+export type CuratedListMode = 'trending' | 'popular'
+
+export function curatedListInlineErrorMessage(
+  error: unknown,
+  activeList: CuratedListMode,
+): string {
+  const label = activeList === 'trending' ? 'Trending' : 'Popular'
+  if (error instanceof ApiError) {
+    return `Erro ${error.status}: falha ao buscar ${label}.`
+  }
+  if (isTmdbContractError(error)) {
+    return `Os dados de ${label} chegaram em formato inesperado. Tente atualizar a página.`
+  }
+  return `Não foi possível carregar ${label}.`
+}
+
+export function discoveryListInlineErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return `Erro ${error.status}: falha ao buscar filmes.`
+  }
+  if (isTmdbContractError(error)) {
+    return 'Os dados da lista chegaram em formato inesperado. Tente novamente em instantes.'
+  }
+  return 'Não foi possível carregar a lista.'
+}
+
+export function discoveryErrorToastMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return `Falha ao buscar filmes (erro ${error.status}).`
+  }
+  if (isTmdbContractError(error)) {
+    return 'Não foi possível validar os dados recebidos da API. Tente novamente mais tarde.'
+  }
+  return 'Falha ao buscar filmes. Verifique a conexão e tente novamente.'
+}
+
+export function curatedErrorToastMessage(
+  error: unknown,
+  list: CuratedListMode,
+): string {
+  const label = list === 'trending' ? 'Trending' : 'Popular'
+  if (error instanceof ApiError) {
+    return `Falha ao carregar ${label} (erro ${error.status}).`
+  }
+  if (isTmdbContractError(error)) {
+    return `Os dados de ${label} não puderam ser validados. Tente atualizar a página.`
+  }
+  return `Falha ao carregar ${label}.`
+}
+
+export function movieDetailErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return `Não foi possível carregar os detalhes (erro ${error.status}).`
+  }
+  if (isTmdbContractError(error)) {
+    return 'Os dados deste filme chegaram em formato inesperado. Tente novamente mais tarde.'
+  }
+  return 'Não foi possível carregar os detalhes deste filme.'
+}
+
+export function movieCreditsInlineErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return `Não foi possível carregar o elenco (erro ${error.status}).`
+  }
+  if (isTmdbContractError(error)) {
+    return 'Os dados do elenco chegaram em formato inesperado.'
+  }
+  return 'Não foi possível carregar o elenco.'
+}

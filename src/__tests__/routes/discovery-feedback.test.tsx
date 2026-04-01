@@ -1,6 +1,8 @@
 import { screen, waitFor } from '@testing-library/react'
+import { z } from 'zod'
 
 import { useAuthStore } from '@/features/auth/store'
+import { TmdbContractError } from '@/features/movies/types'
 import { ApiError } from '@/lib/api'
 import * as movieQueries from '@/features/movies/queries'
 import { renderWithApp, resetAuthStore } from '@/test/test-utils'
@@ -79,6 +81,28 @@ describe('Discovery feedback states', () => {
     await waitFor(() => {
       expect(
         screen.getAllByText('Falha ao buscar filmes (erro 500).').length,
+      ).toBeGreaterThan(0)
+    })
+  })
+
+  it('exibe toast específico para falha de contrato TMDB', async () => {
+    const zod = z.string().safeParse(1)
+    if (zod.success) throw new Error('expected zod failure')
+    mockedUseDiscoveryMovies.mockReturnValue({
+      data: undefined,
+      error: new TmdbContractError('GET /search/movie', 'response', zod.error),
+      isError: true,
+      isFetching: false,
+      isPending: false,
+    } as unknown as ReturnType<typeof movieQueries.useDiscoveryMovies>)
+
+    renderWithApp('/discovery')
+
+    await waitFor(() => {
+      expect(
+        screen.getAllByText(
+          'Não foi possível validar os dados recebidos da API. Tente novamente mais tarde.',
+        ).length,
       ).toBeGreaterThan(0)
     })
   })
