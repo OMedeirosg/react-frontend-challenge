@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,14 +38,16 @@ export function MoviesFiltersPanel(props: Readonly<MoviesFiltersPanelProps>) {
   const [minVoteDraft, setMinVoteDraft] = useState(
     minVote == null ? '' : String(minVote),
   )
-
-  useEffect(() => {
+  const [prevYear, setPrevYear] = useState(year)
+  const [prevMinVote, setPrevMinVote] = useState(minVote)
+  if (year !== prevYear) {
+    setPrevYear(year)
     setYearDraft(year == null ? '' : String(year))
-  }, [year])
-
-  useEffect(() => {
+  }
+  if (minVote !== prevMinVote) {
+    setPrevMinVote(minVote)
     setMinVoteDraft(minVote == null ? '' : String(minVote))
-  }, [minVote])
+  }
 
   const commitYearDraft = useMemo(
     () => () => {

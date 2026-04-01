@@ -8,6 +8,7 @@ import {
 } from './movie-query-errors'
 import { usePopularMovies, useTrendingMovies } from '../queries'
 
+/** Toast + inline na lista ativa (Trending/Popular), alinhado ao Discovery. */
 export function useCuratedListErrorToasts(
   trendingQuery: ReturnType<typeof useTrendingMovies>,
   popularQuery: ReturnType<typeof usePopularMovies>,

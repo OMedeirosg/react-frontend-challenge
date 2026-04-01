@@ -1,7 +1,6 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { useMemo } from 'react'
 
-import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/features/auth/store'
 import { tmdbPosterUrl } from '@/features/movies/lib/tmdb-poster-url'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
@@ -10,11 +9,19 @@ import {
   useMovieDetails,
   useMovieVideos,
 } from '@/features/movies/queries'
+import { useMovieDetailsErrorToast } from '@/features/movies/model/use-movie-details-error-toast'
 import {
+  invalidMovieIdParamMessage,
+  movieCreditsEmptyMessage,
   movieCreditsInlineErrorMessage,
   movieDetailErrorMessage,
+  movieDetailGenericFailureMessage,
+  movieTrailerUnavailableMessage,
 } from '@/features/movies/model/movie-query-errors'
+import { MovieDetailsLoaded } from '@/features/movies/ui/movie-details-loaded'
+import { MovieDetailsPageSkeleton } from '@/features/movies/ui/movie-details-page-skeleton'
 import { useToastStore } from '@/shared/model/toast-store'
+import { QueryInlineError } from '@/shared/ui/feedback'
 
 export const Route = createFileRoute('/movie/$id')({
   beforeLoad: async () => {
@@ -35,6 +42,7 @@ function MovieDetailsPage() {
   const detailsQuery = useMovieDetails(movieId, 'pt-BR')
   const creditsQuery = useMovieCredits(movieId, 'pt-BR')
   const videosQuery = useMovieVideos(movieId, 'pt-BR')
+  useMovieDetailsErrorToast(detailsQuery)
 
   const topCast = useMemo(
     () => (creditsQuery.data?.cast ?? []).slice(0, 8),
@@ -51,16 +59,19 @@ function MovieDetailsPage() {
   }, [videosQuery.data?.results])
 
   const movie = detailsQuery.data
+
   const castContent = (() => {
     if (creditsQuery.isError) {
       return (
-        <p className="text-sm text-muted-foreground" role="alert">
+        <QueryInlineError className="text-sm">
           {movieCreditsInlineErrorMessage(creditsQuery.error)}
-        </p>
+        </QueryInlineError>
       )
     }
     if (topCast.length === 0) {
-      return <p className="text-sm text-muted-foreground">Elenco indisponível.</p>
+      return (
+        <p className="text-sm text-muted-foreground">{movieCreditsEmptyMessage}</p>
+      )
     }
     return (
       <ul className="grid gap-2 sm:grid-cols-2">
@@ -74,26 +85,39 @@ function MovieDetailsPage() {
     )
   })()
 
+  const trailerBlock = trailer ? (
+    <a
+      href={`https://www.youtube.com/watch?v=${trailer.key}`}
+      target="_blank"
+      rel="noreferrer"
+      className="text-sm text-primary underline-offset-4 hover:underline"
+    >
+      Assistir trailer: {trailer.name}
+    </a>
+  ) : (
+    <p className="text-sm text-muted-foreground">{movieTrailerUnavailableMessage}</p>
+  )
+
   if (!Number.isFinite(movieId) || movieId <= 0) {
-    return <p className="p-4 text-destructive">ID de filme inválido.</p>
+    return (
+      <div className="p-4">
+        <QueryInlineError className="text-sm">{invalidMovieIdParamMessage}</QueryInlineError>
+      </div>
+    )
   }
 
   if (detailsQuery.isPending) {
-    return (
-      <div className="p-4">
-        <p className="text-sm text-muted-foreground">Carregando detalhes do filme...</p>
-      </div>
-    )
+    return <MovieDetailsPageSkeleton />
   }
 
   if (detailsQuery.isError || !movie) {
     return (
       <div className="p-4">
-        <p className="text-sm text-destructive" role="alert">
+        <QueryInlineError className="text-sm">
           {detailsQuery.isError
             ? movieDetailErrorMessage(detailsQuery.error)
-            : 'Não foi possível carregar os detalhes deste filme.'}
-        </p>
+            : movieDetailGenericFailureMessage}
+        </QueryInlineError>
       </div>
     )
   }
@@ -102,92 +126,14 @@ function MovieDetailsPage() {
   const inWatchlist = watchlistActions.isInWatchlist(movie.id)
 
   return (
-    <div className="space-y-6 p-4">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">{movie.title}</h1>
-        <p className="text-sm text-muted-foreground">
-          Nota {movie.vote_average.toFixed(1)} • Lançamento {movie.release_date || '—'}
-        </p>
-      </header>
-
-      <section className="grid gap-4 md:grid-cols-[220px_1fr]">
-        <div className="overflow-hidden rounded-md border bg-muted/20">
-          {posterUrl ? (
-            <img src={posterUrl} alt={`Pôster de ${movie.title}`} className="h-full w-full object-cover" />
-          ) : (
-            <div className="grid h-full min-h-[320px] place-items-center text-sm text-muted-foreground">
-              Sem pôster
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-4">
-          <p className="text-sm leading-6">{movie.overview || 'Sem sinopse disponível.'}</p>
-
-          <div className="flex flex-wrap gap-2">
-            {movie.genres.map((genre) => (
-              <span
-                key={genre.id}
-                className="rounded-full border px-2 py-0.5 text-xs text-muted-foreground"
-              >
-                {genre.name}
-              </span>
-            ))}
-          </div>
-
-          <Button
-            type="button"
-            onClick={() => {
-              watchlistActions.toggleFromMovie({
-                id: movie.id,
-                title: movie.title,
-                overview: movie.overview,
-                poster_path: movie.poster_path,
-                backdrop_path: movie.backdrop_path,
-                vote_average: movie.vote_average,
-                release_date: movie.release_date,
-                genre_ids: movie.genres.map((genre) => genre.id),
-              })
-            }}
-          >
-            {inWatchlist ? 'Remover do dashboard' : 'Adicionar ao dashboard'}
-          </Button>
-        </div>
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-lg font-medium">Elenco</h2>
-        {castContent}
-      </section>
-
-      <section className="space-y-2">
-        <h2 className="text-lg font-medium">Trailer</h2>
-        {trailer ? (
-          <a
-            href={`https://www.youtube.com/watch?v=${trailer.key}`}
-            target="_blank"
-            rel="noreferrer"
-            className="text-sm text-primary underline-offset-4 hover:underline"
-          >
-            Assistir trailer: {trailer.name}
-          </a>
-        ) : (
-          <p className="text-sm text-muted-foreground">Trailer não disponível.</p>
-        )}
-      </section>
-
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() =>
-          showToast({
-            variant: 'info',
-            message: 'Use o menu lateral para voltar para Discovery ou Dashboard.',
-          })
-        }
-      >
-        Dica de navegação
-      </Button>
-    </div>
+    <MovieDetailsLoaded
+      movie={movie}
+      posterUrl={posterUrl}
+      inWatchlist={inWatchlist}
+      watchlistActions={watchlistActions}
+      showToast={showToast}
+      castContent={castContent}
+      trailerBlock={trailerBlock}
+    />
   )
 }

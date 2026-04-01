@@ -15,6 +15,11 @@ import { MoviesFiltersPanel } from '@/features/movies/ui/movies-filters-panel'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
 import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
+import {
+  watchlistEmptyDescription,
+  watchlistFilteredEmptyDescription,
+} from '@/features/movies/model/movie-query-errors'
+import { EmptyState } from '@/shared/ui/feedback'
 
 export const Route = createFileRoute('/watchlist')({
   beforeLoad: async () => {
@@ -52,15 +57,15 @@ function WatchlistPage() {
       </p>
 
       {movies.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-6">
-          <p className="mb-4 text-sm text-muted-foreground">
-            Sua Watchlist está vazia. Adicione filmes em Discovery, Trending ou
-            Popular.
-          </p>
-          <Button asChild variant="outline">
-            <Link to="/discovery">Ir para Discovery</Link>
-          </Button>
-        </div>
+        <EmptyState
+          variant="bordered"
+          description={watchlistEmptyDescription}
+          action={
+            <Button asChild variant="outline">
+              <Link to="/discovery">Ir para Discovery</Link>
+            </Button>
+          }
+        />
       ) : (
         <MoviesTableLayout
           orientation="top"
@@ -86,9 +91,7 @@ function WatchlistPage() {
           content={
             <>
               {filteredMovies.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Nenhum filme da sua watchlist corresponde aos filtros atuais.
-                </p>
+                <EmptyState description={watchlistFilteredEmptyDescription} />
               ) : null}
               <MoviesDiscoveryTable
                 movies={filteredMovies}

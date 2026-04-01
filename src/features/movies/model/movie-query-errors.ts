@@ -67,6 +67,23 @@ export function curatedErrorToastMessage(
   return `Falha ao carregar ${label}.`
 }
 
+/** Falha genérica / dados ausentes na rota de detalhe (sem erro de rede). */
+export const movieDetailGenericFailureMessage =
+  'Não foi possível carregar os detalhes deste filme.' as const
+
+export const invalidMovieIdParamMessage = 'ID de filme inválido.' as const
+
+/** Toast na falha da query principal de detalhes — tom alinhado a discovery/curated. */
+export function movieDetailErrorToastMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return `Falha ao carregar detalhes (erro ${error.status}).`
+  }
+  if (isTmdbContractError(error)) {
+    return 'Não foi possível validar os dados deste filme. Tente novamente mais tarde.'
+  }
+  return 'Falha ao carregar os detalhes do filme. Verifique a conexão e tente novamente.'
+}
+
 export function movieDetailErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     return `Não foi possível carregar os detalhes (erro ${error.status}).`
@@ -74,8 +91,18 @@ export function movieDetailErrorMessage(error: unknown): string {
   if (isTmdbContractError(error)) {
     return 'Os dados deste filme chegaram em formato inesperado. Tente novamente mais tarde.'
   }
-  return 'Não foi possível carregar os detalhes deste filme.'
+  return movieDetailGenericFailureMessage
 }
+
+export const movieCreditsEmptyMessage = 'Elenco indisponível.' as const
+
+export const movieTrailerUnavailableMessage = 'Trailer não disponível.' as const
+
+export const watchlistEmptyDescription =
+  'Sua Watchlist está vazia. Adicione filmes em Discovery, Trending ou Popular.' as const
+
+export const watchlistFilteredEmptyDescription =
+  'Nenhum filme da sua watchlist corresponde aos filtros atuais.' as const
 
 export function movieCreditsInlineErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {

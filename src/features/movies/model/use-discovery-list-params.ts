@@ -61,7 +61,9 @@ export function useDiscoveryListParams(
 
   const queryDebounced = useDebouncedValue(searchRaw, searchDebounceMs)
 
+  /* Sincroniza estado local com props de navegação (ex.: back/forward). */
   useEffect(() => {
+    /* eslint-disable react-hooks/set-state-in-effect -- reidratação controlada (router/back-forward) */
     if (!controlledState) return
     if (controlledState.searchRaw !== undefined && controlledState.searchRaw !== searchRaw) {
       setSearchRaw(controlledState.searchRaw)
@@ -81,6 +83,7 @@ export function useDiscoveryListParams(
     if (controlledState.minVote !== undefined && controlledState.minVote !== minVote) {
       setMinVote(controlledState.minVote)
     }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [controlledState, genreId, minVote, mode, page, searchRaw, year])
 
   const params = useMemo(() => {

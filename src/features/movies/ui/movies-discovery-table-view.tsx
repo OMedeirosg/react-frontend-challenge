@@ -1,13 +1,5 @@
 import { flexRender, type Table } from '@tanstack/react-table'
 
-import { Button } from '@/components/ui/button'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import type { MovieListItem } from '@/features/movies/types'
 
@@ -16,8 +8,8 @@ import {
   renderTableHeaderContent,
   sortAriaSort,
 } from './movies-discovery-table-header-content'
-
-const PAGE_SIZE_OPTIONS = [5, 10, 15, 20] as const
+import { MoviesDiscoveryTableFooter } from './movies-discovery-table-footer'
+import { MoviesDiscoveryTableLoadingOverlay } from './movies-discovery-table-loading-overlay'
 
 type MoviesDiscoveryTableViewProps = {
   readonly table: Table<MovieListItem>
@@ -113,68 +105,18 @@ export function MoviesDiscoveryTableView(
           </tbody>
         </table>
       </div>
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2">
-        <p className="text-xs text-muted-foreground">
-          Página {currentPageLabel}
-          {totalPageLabel ? ` de ${totalPageLabel}` : ''}
-          {' · '}
-          {pageSize} {pageSize === 1 ? 'item' : 'itens'} por página de{' '}
-          {totalResults.toLocaleString('pt-BR')} total
-        </p>
-
-        <div className="flex items-center gap-1.5">
-          <label
-            htmlFor="page-size-select"
-            className="text-xs text-muted-foreground"
-          >
-            Itens por página
-          </label>
-          <Select
-            value={String(pageSize)}
-            onValueChange={(v) => onPageSizeChange(Number(v))}
-          >
-            <SelectTrigger id="page-size-select" size="sm" className="w-[70px] text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {PAGE_SIZE_OPTIONS.map((n) => (
-                <SelectItem key={n} value={String(n)}>
-                  {n}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={onPrevPage}
-            disabled={disablePrevButton}
-          >
-            Anterior
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={onNextPage}
-            disabled={disableNextButton}
-          >
-            Próxima
-          </Button>
-        </div>
-      </div>
-      {isLoading ? (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/65">
-          <div
-            className="size-7 animate-spin rounded-full border-2 border-muted-foreground/25 border-t-foreground"
-            aria-label="Atualizando lista de filmes"
-          />
-        </div>
-      ) : null}
+      <MoviesDiscoveryTableFooter
+        currentPageLabel={currentPageLabel}
+        totalPageLabel={totalPageLabel}
+        totalResults={totalResults}
+        pageSize={pageSize}
+        onPageSizeChange={onPageSizeChange}
+        disablePrevButton={disablePrevButton}
+        disableNextButton={disableNextButton}
+        onPrevPage={onPrevPage}
+        onNextPage={onNextPage}
+      />
+      {isLoading ? <MoviesDiscoveryTableLoadingOverlay /> : null}
     </div>
   )
 }

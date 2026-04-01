@@ -14,6 +14,7 @@ type UseDiscoveryFeedbackParams = {
   moviesQuery: ReturnType<typeof useDiscoveryMovies>
 }
 
+/** Toast + inline: dedupe por movieQueryErrorToastKey; inline mantém contexto na tabela. */
 export function useDiscoveryFeedback(
   args: Readonly<UseDiscoveryFeedbackParams>,
 ) {

@@ -1,5 +1,6 @@
 import { curatedListInlineErrorMessage } from '@/features/movies/model/movie-query-errors'
 import type { MovieListItem } from '@/features/movies/types'
+import { EmptyState, QueryInlineError } from '@/shared/ui/feedback'
 
 import type { MoviesTableActions } from './movies-discovery-table-columns'
 import { MoviesDiscoveryTable } from './movies-discovery-table'
@@ -45,13 +46,13 @@ export function CuratedListSection(props: Readonly<CuratedListSectionProps>) {
   return (
     <section className="space-y-2">
       {isError ? (
-        <p className="text-destructive" role="alert">
+        <QueryInlineError>
           {curatedListInlineErrorMessage(error, activeList)}
-        </p>
+        </QueryInlineError>
       ) : null}
       {isPending ? <MoviesDiscoveryTableSkeleton className="w-full" /> : null}
       {!isPending && !isError && movies.length === 0 ? (
-        <p className="w-full text-muted-foreground">{emptyMessage}</p>
+        <EmptyState description={emptyMessage} />
       ) : null}
       {movies.length > 0 ? (
         <MoviesDiscoveryTable
