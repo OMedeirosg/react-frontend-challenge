@@ -51,6 +51,7 @@ export type SearchMoviesParams = {
   page?: number
   language?: string
   includeAdult?: boolean
+  signal?: AbortSignal
 }
 
 export async function searchMovies(
@@ -61,6 +62,7 @@ export async function searchMovies(
     page = 1,
     language = 'pt-BR',
     includeAdult = false,
+    signal,
   } = params
 
   const search = new URLSearchParams({
@@ -72,6 +74,7 @@ export async function searchMovies(
 
   return api.get<PaginatedMoviesResponse>(
     `/search/movie?${search.toString()}`,
+    { signal },
   )
 }
 
