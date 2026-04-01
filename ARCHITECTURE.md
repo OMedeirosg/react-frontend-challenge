@@ -113,7 +113,7 @@ O *root* (`__root.tsx`) apenas monta o layout; não aplica auth globalmente — 
 
 ## Funcionalidades transversais (estado atual)
 
-- **Watchlist:** Zustand + `persist` em [`src/features/movies/model/watchlist-store.ts`](./src/features/movies/model/watchlist-store.ts); adicionar/remover a partir da home, discovery, detalhe e página dedicada; persistência após reload.
+- **Watchlist:** Zustand + `persist` em [`src/features/movies/model/watchlist-store.ts`](./src/features/movies/model/watchlist-store.ts); adicionar/remover a partir da home, discovery, detalhe e página dedicada; persistência após reload, **escopada por conta** no cliente (`localStorage` por email normalizado).
 - **Tema claro/escuro:** Zustand + `persist` em [`src/shared/model/theme-store.ts`](./src/shared/model/theme-store.ts); [`ThemeProvider`](./src/providers/ThemeProvider.tsx) aplica a classe `dark` no `documentElement`; toggle na top bar ([`theme-toggle.tsx`](./src/components/theme-toggle.tsx)).
 - **Tabela de filmes (listagens):** **TanStack Table** em [`src/features/movies/ui/use-movies-discovery-table.tsx`](./src/features/movies/ui/use-movies-discovery-table.tsx) e colunas em `movies-discovery-table-columns.tsx` (ordenação, integração com dados TMDB).
 - **Erros na UI:** mensagens centralizadas em [`movie-query-errors.ts`](./src/features/movies/model/movie-query-errors.ts); toasts para falhas de listas curadas; estados de loading com skeletons (ex.: detalhe do filme). **Não** há React Error Boundary dedicado no projeto; falhas de render não são isoladas por boundary — o foco é tratamento de erros de rede/contrato e feedback inline (ex.: [`QueryInlineError`](./src/shared/ui/feedback/query-inline-error.tsx)).

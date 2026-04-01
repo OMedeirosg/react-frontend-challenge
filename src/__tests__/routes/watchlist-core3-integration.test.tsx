@@ -2,7 +2,10 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import { useAuthStore } from '@/features/auth/store'
-import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
+import {
+  getWatchlistStorageKeyForUser,
+  useWatchlistStore,
+} from '@/features/movies/model/watchlist-store'
 import type { MovieListItem } from '@/features/movies/types'
 import * as movieQueries from '@/features/movies/queries'
 import {
@@ -48,7 +51,6 @@ describe('Core 3 watchlist integration', () => {
   beforeEach(() => {
     resetAuthStore()
     resetWatchlistStore()
-    localStorage.removeItem('cinedash-watchlist')
     setAuthenticatedUser()
 
     mockedUseMovieGenres.mockReturnValue({
@@ -100,7 +102,7 @@ describe('Core 3 watchlist integration', () => {
 
   it('restores watchlist from persisted storage after rehydrate (refresh simulation)', async () => {
     localStorage.setItem(
-      'cinedash-watchlist',
+      getWatchlistStorageKeyForUser('user@test.com'),
       JSON.stringify({
         state: { items: [movie] },
         version: 0,

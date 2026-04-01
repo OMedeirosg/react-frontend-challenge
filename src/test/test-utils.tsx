@@ -4,7 +4,10 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 
 import { routeTree } from '@/routeTree.gen'
 import { useAuthStore } from '@/features/auth/store'
-import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
+import {
+  clearAllWatchlistStorageKeys,
+  useWatchlistStore,
+} from '@/features/movies/model/watchlist-store'
 import { usePageSizeStore } from '@/shared/model/page-size-store'
 import { ReactQueryProvider } from '@/providers/ReactQueryProvider'
 
@@ -19,7 +22,7 @@ export function resetAuthStore() {
 }
 
 export function resetWatchlistStore() {
-  useWatchlistStore.persist.clearStorage()
+  clearAllWatchlistStorageKeys()
   useWatchlistStore.setState({ items: [] })
 }
 

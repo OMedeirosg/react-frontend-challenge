@@ -1,5 +1,10 @@
 import type { MovieListItem } from '@/features/movies/types'
-import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
+import { useAuthStore } from '@/features/auth/store'
+import {
+  getWatchlistStorageKeyForUser,
+  useWatchlistStore,
+} from '@/features/movies/model/watchlist-store'
+import { resetAuthStore, resetWatchlistStore } from '@/test/test-utils'
 
 const movieA: MovieListItem = {
   id: 1,
@@ -23,10 +28,18 @@ const movieB: MovieListItem = {
   genre_ids: [18],
 }
 
+function loginAs(email: string) {
+  useAuthStore.setState({
+    token: 'fake-token',
+    currentUserEmail: email,
+  })
+}
+
 describe('watchlist-store', () => {
   beforeEach(() => {
-    useWatchlistStore.persist.clearStorage()
-    useWatchlistStore.setState({ items: [] })
+    resetAuthStore()
+    resetWatchlistStore()
+    loginAs('watchlist@test.com')
   })
 
   it('adiciona item sem duplicar', () => {
@@ -60,5 +73,52 @@ describe('watchlist-store', () => {
     expect(useWatchlistStore.getState().hasMovie(movieA.id)).toBe(false)
     useWatchlistStore.getState().addMovie(movieA)
     expect(useWatchlistStore.getState().hasMovie(movieA.id)).toBe(true)
+  })
+
+  it('mantém listas distintas por utilizador (mesmo browser)', async () => {
+    useWatchlistStore.getState().addMovie(movieA)
+    expect(useWatchlistStore.getState().items).toHaveLength(1)
+
+    loginAs('other@test.com')
+    await useWatchlistStore.persist.rehydrate()
+
+    expect(useWatchlistStore.getState().items).toHaveLength(0)
+    useWatchlistStore.getState().addMovie(movieB)
+    expect(useWatchlistStore.getState().items.map((m) => m.id)).toEqual([movieB.id])
+
+    loginAs('watchlist@test.com')
+    await useWatchlistStore.persist.rehydrate()
+
+    expect(useWatchlistStore.getState().items.map((m) => m.id)).toEqual([movieA.id])
+  })
+
+  it('esvazia itens ao logout (sem flash da lista anterior)', async () => {
+    useWatchlistStore.getState().addMovie(movieA)
+    expect(useWatchlistStore.getState().items).toHaveLength(1)
+
+    useAuthStore.getState().logout()
+    await useWatchlistStore.persist.rehydrate()
+
+    expect(useAuthStore.getState().currentUserEmail).toBeNull()
+    expect(useWatchlistStore.getState().items).toHaveLength(0)
+  })
+
+  it('migra chave legada cinedash-watchlist para o utilizador atual', async () => {
+    const key = getWatchlistStorageKeyForUser('watchlist@test.com')
+    localStorage.setItem(
+      'cinedash-watchlist',
+      JSON.stringify({
+        state: { items: [movieA] },
+        version: 0,
+      }),
+    )
+    expect(localStorage.getItem(key)).toBeNull()
+
+    await useWatchlistStore.persist.rehydrate()
+
+    expect(localStorage.getItem('cinedash-watchlist')).toBeNull()
+    expect(localStorage.getItem(key)).toBeTruthy()
+    expect(useWatchlistStore.getState().items).toHaveLength(1)
+    expect(useWatchlistStore.getState().items[0]?.id).toBe(movieA.id)
   })
 })
