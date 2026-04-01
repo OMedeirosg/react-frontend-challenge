@@ -108,6 +108,7 @@ function DiscoveryComponent() {
             {moviesQuery.data?.results.length ? (
               <MoviesDiscoveryTable
                 movies={moviesQuery.data.results}
+                totalResults={moviesQuery.data.total_results}
                 className="w-full"
                 genres={genresQuery.data?.genres}
                 isLoading={moviesQuery.isFetching && !moviesQuery.isPending}

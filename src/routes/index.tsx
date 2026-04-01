@@ -89,6 +89,7 @@ function HomeComponent() {
             activeList={ui.activeList}
             activePage={activePage}
             totalPages={activeQuery.data?.total_pages}
+            totalResults={activeQuery.data?.total_results}
             isPending={activeQuery.isPending}
             isFetching={activeQuery.isFetching}
             isError={activeQuery.isError}

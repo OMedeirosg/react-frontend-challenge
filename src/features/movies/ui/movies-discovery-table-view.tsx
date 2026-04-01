@@ -1,6 +1,13 @@
 import { flexRender, type Table } from '@tanstack/react-table'
 
 import { Button } from '@/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import type { MovieListItem } from '@/features/movies/types'
 
@@ -10,6 +17,8 @@ import {
   sortAriaSort,
 } from './movies-discovery-table-header-content'
 
+const PAGE_SIZE_OPTIONS = [5, 10, 15, 20] as const
+
 type MoviesDiscoveryTableViewProps = {
   readonly table: Table<MovieListItem>
   readonly actions?: MoviesTableActions
@@ -18,6 +27,9 @@ type MoviesDiscoveryTableViewProps = {
   readonly className?: string
   readonly currentPageLabel: number
   readonly totalPageLabel?: number
+  readonly totalResults: number
+  readonly pageSize: number
+  readonly onPageSizeChange: (size: number) => void
   readonly disablePrevButton: boolean
   readonly disableNextButton: boolean
   readonly onPrevPage: () => void
@@ -35,6 +47,9 @@ export function MoviesDiscoveryTableView(
     className,
     currentPageLabel,
     totalPageLabel,
+    totalResults,
+    pageSize,
+    onPageSizeChange,
     disablePrevButton,
     disableNextButton,
     onPrevPage,
@@ -98,11 +113,39 @@ export function MoviesDiscoveryTableView(
           </tbody>
         </table>
       </div>
-      <div className="flex items-center justify-between border-t border-border px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border px-3 py-2">
         <p className="text-xs text-muted-foreground">
           Página {currentPageLabel}
           {totalPageLabel ? ` de ${totalPageLabel}` : ''}
+          {' · '}
+          {pageSize} {pageSize === 1 ? 'item' : 'itens'} por página de{' '}
+          {totalResults.toLocaleString('pt-BR')} total
         </p>
+
+        <div className="flex items-center gap-1.5">
+          <label
+            htmlFor="page-size-select"
+            className="text-xs text-muted-foreground"
+          >
+            Itens por página
+          </label>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(v) => onPageSizeChange(Number(v))}
+          >
+            <SelectTrigger id="page-size-select" size="sm" className="w-[70px] text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((n) => (
+                <SelectItem key={n} value={String(n)}>
+                  {n}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div className="flex items-center gap-2">
           <Button
             type="button"

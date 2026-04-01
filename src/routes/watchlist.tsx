@@ -110,6 +110,7 @@ function WatchlistPage() {
               ) : null}
               <MoviesDiscoveryTable
                 movies={filteredMovies}
+                totalResults={filteredMovies.length}
                 genres={genresQuery.data?.genres}
                 viewMode="watchlist"
                 actions={{
