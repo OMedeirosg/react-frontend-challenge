@@ -1,39 +1,22 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import {
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   type PaginationState,
   type SortingState,
+  type VisibilityState,
   useReactTable,
 } from '@tanstack/react-table'
 
 import { usePageSizeStore } from '@/shared/model/page-size-store'
-import type { MovieGenre, MovieListItem } from '../types'
-import {
-  buildMoviesDiscoveryColumns,
-  type MoviesTableActions,
-} from './movies-discovery-table-columns'
+import { buildMoviesDiscoveryColumns } from './movies-discovery-table-columns'
 import { computeMoviesTablePagination } from './movies-discovery-table-pagination'
+import type { UseMoviesDiscoveryTableArgs } from './movies-discovery-table-args'
+import { MoviesDiscoveryTableToolbarRow } from './movies-discovery-table-toolbar-row'
 import { MoviesDiscoveryTableView } from './movies-discovery-table-view'
 
-export type UseMoviesDiscoveryTableArgs = {
-  readonly movies: MovieListItem[]
-  readonly genres?: MovieGenre[]
-  readonly isLoading?: boolean
-  readonly actions?: MoviesTableActions
-  readonly viewMode?: 'catalog' | 'watchlist'
-  readonly totalResults?: number
-  readonly externalPagination?: {
-    readonly page: number
-    readonly totalPages?: number
-    readonly onPrevPage: () => void
-    readonly onNextPage: () => void
-    readonly disablePrev?: boolean
-    readonly disableNext?: boolean
-  }
-  readonly className?: string
-}
+export type { UseMoviesDiscoveryTableArgs } from './movies-discovery-table-args'
 
 export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
   const {
@@ -45,9 +28,12 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
     totalResults: totalResultsProp,
     externalPagination,
     className,
+    filtersSlot,
+    emptyState,
   } = args
 
   const [sorting, setSorting] = useState<SortingState>([])
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const storedPageSize = usePageSizeStore((s) => s.pageSize)
   const setStoredPageSize = usePageSizeStore((s) => s.setPageSize)
   const [pagination, setPagination] = useState<PaginationState>({
@@ -74,9 +60,10 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
   const table = useReactTable({
     data: movies,
     columns,
-    state: { sorting, pagination },
+    state: { sorting, pagination, columnVisibility },
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
+    onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -133,23 +120,31 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
     setPagination({ pageIndex: 0, pageSize: newSize })
   }
 
+  const showEmptyState =
+    emptyState != null && movies.length === 0 && !isLoading
+
   const view = (
-    <MoviesDiscoveryTableView
-      table={table}
-      actions={actions}
-      viewMode={viewMode}
-      isLoading={isLoading}
-      className={className}
-      currentPageLabel={currentPageLabel}
-      totalPageLabel={totalPageLabel}
-      totalResults={totalResults}
-      pageSize={pageSize}
-      onPageSizeChange={handlePageSizeChange}
-      disablePrevButton={disablePrevButton}
-      disableNextButton={disableNextButton}
-      onPrevPage={handlePrevPage}
-      onNextPage={handleNextPage}
-    />
+    <Fragment>
+      <MoviesDiscoveryTableToolbarRow table={table} filtersSlot={filtersSlot} />
+      <MoviesDiscoveryTableView
+        table={table}
+        actions={actions}
+        viewMode={viewMode}
+        isLoading={isLoading}
+        className={className}
+        currentPageLabel={currentPageLabel}
+        totalPageLabel={totalPageLabel}
+        totalResults={totalResults}
+        pageSize={pageSize}
+        onPageSizeChange={handlePageSizeChange}
+        disablePrevButton={disablePrevButton}
+        disableNextButton={disableNextButton}
+        onPrevPage={handlePrevPage}
+        onNextPage={handleNextPage}
+        showEmptyState={showEmptyState}
+        emptyState={emptyState}
+      />
+    </Fragment>
   )
 
   return { view }

@@ -1,8 +1,6 @@
 import type { MovieListItem } from '../types'
-import {
-  useMoviesDiscoveryTable,
-  type UseMoviesDiscoveryTableArgs,
-} from './use-movies-discovery-table'
+import type { UseMoviesDiscoveryTableArgs } from './movies-discovery-table-args'
+import { useMoviesDiscoveryTable } from './use-movies-discovery-table'
 
 export type MoviesDiscoveryTableProps = UseMoviesDiscoveryTableArgs & {
   readonly movies: MovieListItem[]
