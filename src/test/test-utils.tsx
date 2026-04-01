@@ -5,6 +5,7 @@ import { createRouter, RouterProvider } from '@tanstack/react-router'
 import { routeTree } from '@/routeTree.gen'
 import { useAuthStore } from '@/features/auth/store'
 import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
+import { usePageSizeStore } from '@/shared/model/page-size-store'
 import { ReactQueryProvider } from '@/providers/ReactQueryProvider'
 
 /** Limpa cookie persistido e repõe o estado in-memory da auth. */
@@ -20,6 +21,12 @@ export function resetAuthStore() {
 export function resetWatchlistStore() {
   useWatchlistStore.persist.clearStorage()
   useWatchlistStore.setState({ items: [] })
+}
+
+/** Garante tamanho de página padrão na tabela (evita vazamento de localStorage entre testes). */
+export function resetPageSizeStore() {
+  usePageSizeStore.persist.clearStorage()
+  usePageSizeStore.setState({ pageSize: 20 })
 }
 
 export function createTestRouter(initialPath: string) {

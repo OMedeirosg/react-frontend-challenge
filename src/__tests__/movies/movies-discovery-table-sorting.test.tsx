@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import type { MovieListItem } from '@/features/movies/types'
+import { usePageSizeStore } from '@/shared/model/page-size-store'
 
 const movies: MovieListItem[] = [
   {
@@ -53,6 +54,34 @@ function getColumnValues(columnIndex: number): string[] {
 }
 
 describe('MoviesDiscoveryTable sorting', () => {
+  it('shows footer with page size and total count', () => {
+    render(<MoviesDiscoveryTable movies={movies} genres={genres} />)
+
+    expect(
+      screen.getByText(/20 itens por página de 3 total/),
+    ).toBeTruthy()
+  })
+
+  it('renders at most pageSize data rows when store uses a smaller page size', () => {
+    usePageSizeStore.setState({ pageSize: 5 })
+    const eight: MovieListItem[] = Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      title: `Filme ${i + 1}`,
+      overview: '',
+      poster_path: null,
+      backdrop_path: null,
+      vote_average: 7,
+      release_date: '2024-01-01',
+      genre_ids: [1],
+    }))
+
+    render(<MoviesDiscoveryTable movies={eight} genres={genres} />)
+
+    const table = screen.getByRole('table')
+    const dataRows = within(table).getAllByRole('row').slice(1)
+    expect(dataRows).toHaveLength(5)
+  })
+
   it('orders title, genre and rating when clicking headers', async () => {
     const user = userEvent.setup()
     render(<MoviesDiscoveryTable movies={movies} genres={genres} />)
