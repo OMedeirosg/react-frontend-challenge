@@ -52,8 +52,8 @@ export function RegisterForm() {
         }
         return
       }
-      showToast({ variant: 'success', message: 'Conta criada com sucesso. Faça login para continuar.' })
-      await navigate({ to: '/login' })
+      showToast({ variant: 'success', message: 'Conta criada com sucesso.' })
+      await navigate({ to: '/' })
     } catch {
       setError('root', { message: 'Não foi possível criar a conta agora.' })
       showToast({ variant: 'error', message: 'Erro ao criar a conta. Tente novamente.' })

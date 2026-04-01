@@ -28,6 +28,7 @@ describe('LoginForm', () => {
   it('navega para / e define token após credenciais válidas', async () => {
     const user = userEvent.setup()
     await useAuthStore.getState().register('user@test.com', 'secret12')
+    useAuthStore.getState().logout()
     const { router } = renderWithApp('/login')
 
     await fillLoginForm(user, 'user@test.com', 'secret12')
@@ -43,6 +44,7 @@ describe('LoginForm', () => {
   it('mostra erro com credenciais inválidas', async () => {
     const user = userEvent.setup()
     await useAuthStore.getState().register('user@test.com', 'secret12')
+    useAuthStore.getState().logout()
     renderWithApp('/login')
 
     await fillLoginForm(user, 'user@test.com', 'wrong-password-123')
