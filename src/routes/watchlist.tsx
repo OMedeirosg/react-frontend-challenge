@@ -4,8 +4,6 @@ import {
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
-
 import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/features/auth/store'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
@@ -14,6 +12,7 @@ import type { MovieListItem } from '@/features/movies/types'
 import { MoviesFiltersPanel } from '@/features/movies/ui/movies-filters-panel'
 import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-table'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
+import { useWatchlistTableFilters } from '@/features/movies/model/use-watchlist-table-filters'
 import { useWatchlistStore } from '@/features/movies/model/watchlist-store'
 import {
   watchlistEmptyDescription,
@@ -36,18 +35,12 @@ function WatchlistPage() {
   const movies = useWatchlistStore((state) => state.items)
   const genresQuery = useMovieGenres('pt-BR')
   const watchlistActions = useWatchlistActions()
-  const [genreId, setGenreId] = useState<number | null>(null)
-  const [year, setYear] = useState<number | null>(null)
-  const [minVote, setMinVote] = useState<number | null>(null)
-
-  const filteredMovies = useMemo(() => {
-    return movies.filter((movie) => {
-      if (genreId != null && !movie.genre_ids.includes(genreId)) return false
-      if (year != null && !movie.release_date.startsWith(String(year))) return false
-      if (minVote != null && movie.vote_average < minVote) return false
-      return true
-    })
-  }, [genreId, minVote, movies, year])
+  const {
+    ui: filterUi,
+    actions: filterActions,
+    isApplyDisabled,
+    filteredMovies,
+  } = useWatchlistTableFilters(movies)
 
   return (
     <div className="p-4">
@@ -69,47 +62,53 @@ function WatchlistPage() {
       ) : (
         <MoviesTableLayout
           orientation="top"
-          filters={
-            <MoviesFiltersPanel
-              ariaLabel="Filtros da watchlist"
-              idPrefix="watchlist"
-              filtersInline
-              genreId={genreId}
-              year={year}
-              minVote={minVote}
+          content={
+            <MoviesDiscoveryTable
+              filtersSlot={
+                <MoviesFiltersPanel
+                  ariaLabel="Filtros da watchlist"
+                  idPrefix="watchlist"
+                  filtersInline
+                  inlineTrailingSlot={
+                    <Button
+                      type="button"
+                      className="h-8"
+                      disabled={isApplyDisabled}
+                      onClick={filterActions.applyFilters}
+                    >
+                      Aplicar filtros
+                    </Button>
+                  }
+                  genreId={filterUi.genreId}
+                  year={filterUi.year}
+                  minVote={filterUi.minVote}
+                  genres={genresQuery.data?.genres}
+                  onGenreChange={filterActions.setGenreId}
+                  onYearChange={filterActions.setYear}
+                  onMinVoteChange={filterActions.setMinVote}
+                  onReset={filterActions.resetFilters}
+                />
+              }
+              movies={filteredMovies}
+              totalResults={filteredMovies.length}
               genres={genresQuery.data?.genres}
-              onGenreChange={setGenreId}
-              onYearChange={setYear}
-              onMinVoteChange={setMinVote}
-              onReset={() => {
-                setGenreId(null)
-                setYear(null)
-                setMinVote(null)
+              viewMode="watchlist"
+              emptyState={
+                filteredMovies.length === 0 ? (
+                  <EmptyState description={watchlistFilteredEmptyDescription} />
+                ) : undefined
+              }
+              actions={{
+                onToggleWatchlist: watchlistActions.toggleFromMovie,
+                isInWatchlist: watchlistActions.isInWatchlist,
+                onOpenDetails: (movie: MovieListItem) => {
+                  void navigate({
+                    to: '/movie/$id',
+                    params: { id: String(movie.id) },
+                  })
+                },
               }}
             />
-          }
-          content={
-            <>
-              {filteredMovies.length === 0 ? (
-                <EmptyState description={watchlistFilteredEmptyDescription} />
-              ) : null}
-              <MoviesDiscoveryTable
-                movies={filteredMovies}
-                totalResults={filteredMovies.length}
-                genres={genresQuery.data?.genres}
-                viewMode="watchlist"
-                actions={{
-                  onToggleWatchlist: watchlistActions.toggleFromMovie,
-                  isInWatchlist: watchlistActions.isInWatchlist,
-                  onOpenDetails: (movie: MovieListItem) => {
-                    void navigate({
-                      to: '/movie/$id',
-                      params: { id: String(movie.id) },
-                    })
-                  },
-                }}
-              />
-            </>
           }
         />
       )}
