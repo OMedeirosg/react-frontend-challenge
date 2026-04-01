@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { ApiError } from '@/lib/api'
 import { useToastStore } from '@/shared/model/toast-store'
@@ -7,7 +7,6 @@ import { useDiscoveryMovies } from '../queries'
 import type { DiscoveryListParams } from './discovery-list-params'
 
 type UseDiscoveryFeedbackParams = {
-  contextMode: 'search' | 'filters'
   params: DiscoveryListParams
   moviesQuery: ReturnType<typeof useDiscoveryMovies>
 }
@@ -15,24 +14,15 @@ type UseDiscoveryFeedbackParams = {
 export function useDiscoveryFeedback(
   args: Readonly<UseDiscoveryFeedbackParams>,
 ) {
-  const { contextMode, params, moviesQuery } = args
+  const { params, moviesQuery } = args
   const showToast = useToastStore((s) => s.showToast)
   const lastErrorToastRef = useRef<string | null>(null)
   const lastEmptyToastRef = useRef<string | null>(null)
   const hasQuery = params.query.length > 0
 
-  const contextLabel = useMemo(() => {
-    if (contextMode === 'search') {
-      return hasQuery
-        ? `Searching for "${params.query}"`
-        : 'Pesquisa contextual ativa'
-    }
-    return undefined
-  }, [contextMode, hasQuery, params.query])
-
   const emptyMessage = hasQuery
-    ? `Ainda não achamos o que você procura para "${params.query}". Tente busca contextual ou filtros mais amplos.`
-    : 'Ainda não achamos o que você procura. Tente busca contextual ou filtros mais amplos.'
+    ? `Ainda não achamos o que você procura para "${params.query}". Tente ajustar os filtros para ampliar os resultados.`
+    : 'Ainda não achamos o que você procura. Tente ajustar os filtros para ampliar os resultados.'
 
   useEffect(() => {
     if (!moviesQuery.isError) {
@@ -68,7 +58,7 @@ export function useDiscoveryFeedback(
     lastEmptyToastRef.current = emptyKey
     showToast({
       variant: 'info',
-      message: 'Sem resultados no momento. Tente busca contextual ou filtros mais amplos.',
+      message: 'Sem resultados no momento. Tente ajustar os filtros para ampliar os resultados.',
     })
   }, [
     hasQuery,
@@ -82,5 +72,5 @@ export function useDiscoveryFeedback(
     showToast,
   ])
 
-  return { contextLabel, emptyMessage }
+  return { emptyMessage }
 }

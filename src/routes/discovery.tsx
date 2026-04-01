@@ -3,12 +3,16 @@ import {
   redirect,
   useNavigate,
 } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react'
 
 import { useAuthStore } from '@/features/auth/store'
 import { useDiscoveryFeedback } from '@/features/movies/model/use-discovery-feedback'
-import { useDiscoveryListParams } from '@/features/movies/model/use-discovery-list-params'
 import { useWatchlistActions } from '@/features/movies/model/use-watchlist-actions'
+import {
+  discoveryDraftSchema,
+  discoveryUrlSearchSchema,
+  type DiscoverySearch,
+} from '@/features/movies/model/discovery-search-schema'
 import { useDiscoveryMovies, useMovieGenres } from '@/features/movies/queries'
 import type { MovieListItem } from '@/features/movies/types'
 import { DiscoveryFiltersToolbar } from '@/features/movies/ui/discovery-filters-toolbar'
@@ -17,6 +21,22 @@ import { MoviesDiscoveryTable } from '@/features/movies/ui/movies-discovery-tabl
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
 import { ApiError } from '@/lib/api'
 import { useToastStore } from '@/shared/model/toast-store'
+import {
+  DEFAULT_DISCOVERY_LIST_PARAMS,
+  normalizeDiscoveryListParams,
+  type DiscoveryListParams,
+} from '@/features/movies/model/discovery-list-params'
+
+function toDiscoveryParams(search: DiscoverySearch): DiscoveryListParams {
+  return normalizeDiscoveryListParams({
+    query: search.q ?? '',
+    mode: search.mode ?? DEFAULT_DISCOVERY_LIST_PARAMS.mode,
+    page: search.page ?? DEFAULT_DISCOVERY_LIST_PARAMS.page,
+    genreId: search.genre ?? null,
+    year: search.year ?? null,
+    minVote: search.minVote ?? null,
+  })
+}
 
 export const Route = createFileRoute('/discovery')({
   beforeLoad: async () => {
@@ -25,61 +45,137 @@ export const Route = createFileRoute('/discovery')({
       throw redirect({ to: '/login' })
     }
   },
+  validateSearch: (search): DiscoverySearch => {
+    return discoveryUrlSearchSchema.parse(search)
+  },
   component: DiscoveryComponent,
 })
 
 function DiscoveryComponent() {
   const navigate = useNavigate()
-  const { ui, params, actions } = useDiscoveryListParams({
-    searchDebounceMs: 400,
-  })
-  const [contextMode, setContextMode] = useState<'search' | 'filters'>(
-    'filters',
+  const showToast = useToastStore((s) => s.showToast)
+  const search = Route.useSearch()
+  const params = useMemo(() => toDiscoveryParams(search), [search])
+
+  const [draftGenreId, setDraftGenreId] = useState<number | null>(params.genreId)
+  const [draftYear, setDraftYear] = useState<number | null>(params.year)
+  const [draftMinVote, setDraftMinVote] = useState<number | null>(params.minVote)
+
+  useLayoutEffect(() => {
+    setDraftGenreId(params.genreId)
+    setDraftYear(params.year)
+    setDraftMinVote(params.minVote)
+  }, [
+    params.genreId,
+    params.minVote,
+    params.mode,
+    params.page,
+    params.query,
+    params.year,
+  ])
+
+  const applyFilters = useCallback(() => {
+    const parsed = discoveryDraftSchema.safeParse({
+      genreId: draftGenreId,
+      year: draftYear,
+      minVote: draftMinVote,
+    })
+    if (!parsed.success) {
+      const first = parsed.error.issues[0]?.message
+      showToast({
+        variant: 'error',
+        message: first ?? 'Verifique os filtros antes de aplicar.',
+      })
+      return
+    }
+    void navigate({
+      to: '/discovery',
+      search: (prev: DiscoverySearch) => ({
+        ...prev,
+        genre: parsed.data.genreId ?? undefined,
+        year: parsed.data.year ?? undefined,
+        minVote: parsed.data.minVote ?? undefined,
+        page: 1,
+      }),
+    })
+  }, [draftGenreId, draftMinVote, draftYear, navigate, showToast])
+
+  const ui = useMemo(
+    () => ({
+      searchRaw: search.q ?? '',
+      mode: params.mode,
+      page: params.page,
+      genreId: draftGenreId,
+      year: draftYear,
+      minVote: draftMinVote,
+    }),
+    [draftGenreId, draftMinVote, draftYear, params.mode, params.page, search.q],
   )
+
+  const actions = useMemo(
+    () => ({
+      setGenreId: (value: number | null) => {
+        setDraftGenreId(value)
+      },
+      setYear: (value: number | null) => {
+        if (value != null && Math.abs(value) < 1000) return
+        setDraftYear(value)
+      },
+      setMinVote: (value: number | null) => {
+        setDraftMinVote(value)
+      },
+      prevPage: () => {
+        void navigate({
+          to: '/discovery',
+          search: (prev: DiscoverySearch) => {
+            const currentPage = prev.page ?? DEFAULT_DISCOVERY_LIST_PARAMS.page
+            const nextPage = Math.max(1, currentPage - 1)
+            return { ...prev, page: nextPage === 1 ? undefined : nextPage }
+          },
+        })
+      },
+      nextPage: () => {
+        void navigate({
+          to: '/discovery',
+          search: (prev: DiscoverySearch) => {
+            const currentPage = prev.page ?? DEFAULT_DISCOVERY_LIST_PARAMS.page
+            return { ...prev, page: currentPage + 1 }
+          },
+        })
+      },
+      reset: () => {
+        setDraftGenreId(null)
+        setDraftYear(null)
+        setDraftMinVote(null)
+      },
+      applyFilters,
+    }),
+    [applyFilters, navigate],
+  )
+
   const genresQuery = useMovieGenres('pt-BR')
   const moviesQuery = useDiscoveryMovies(params)
-  const showToast = useToastStore((s) => s.showToast)
   const watchlistActions = useWatchlistActions()
-  const { contextLabel, emptyMessage } = useDiscoveryFeedback({
-    contextMode,
-    params,
-    moviesQuery,
-  })
+  const { emptyMessage } = useDiscoveryFeedback({ params, moviesQuery })
+
+  const isApplyDisabled = moviesQuery.isFetching
 
   return (
     <div className="p-4">
       <h1 className="mb-1 text-2xl font-semibold">Discovery</h1>
       <p className="mb-4 text-sm text-muted-foreground">
-        Busca textual e filtros avançados em um único fluxo.
+        Busca global via topbar e filtros avançados em um único fluxo.
       </p>
 
       <MoviesTableLayout
+        orientation="top"
         filters={
           <DiscoveryFiltersToolbar
             className="w-full"
             ui={ui}
             actions={actions}
             genres={genresQuery.data?.genres}
-            contextLabel={contextLabel}
-            searchActive={contextMode === 'search'}
-            onSelectSearchContext={() => {
-              setContextMode('search')
-              actions.setGenreId(null)
-              actions.setYear(null)
-              actions.setMinVote(null)
-              showToast({
-                variant: 'info',
-                message: 'Modo de busca contextual ativado.',
-              })
-            }}
-            onSelectFilterContext={() => {
-              setContextMode('filters')
-              actions.setSearchRaw('')
-              showToast({
-                variant: 'info',
-                message: 'Modo de filtros avançados ativado.',
-              })
-            }}
+            isApplyDisabled={isApplyDisabled}
           />
         }
         content={
@@ -91,8 +187,19 @@ function DiscoveryComponent() {
                   : 'Não foi possível carregar a lista.'}
               </p>
             ) : null}
+
             {moviesQuery.isPending ? (
               <MoviesDiscoveryTableSkeleton className="w-full" />
+            ) : null}
+
+            {moviesQuery.isFetching && !moviesQuery.isPending ? (
+              <p
+                className="mb-2 w-full text-sm text-muted-foreground"
+                role="status"
+                aria-live="polite"
+              >
+                Aplicando filtros…
+              </p>
             ) : null}
 
             {moviesQuery.data?.results.length === 0 ? (
@@ -142,4 +249,3 @@ function DiscoveryComponent() {
     </div>
   )
 }
-

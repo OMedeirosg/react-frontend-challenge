@@ -59,7 +59,7 @@ describe('Discovery feedback states', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          'Ainda não achamos o que você procura. Tente busca contextual ou filtros mais amplos.',
+          'Ainda não achamos o que você procura. Tente ajustar os filtros para ampliar os resultados.',
         ),
       ).toBeTruthy()
     })

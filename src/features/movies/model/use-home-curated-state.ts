@@ -1,8 +1,4 @@
 import { useMemo, useState } from 'react'
-
-import { useDebouncedValue } from '@/shared/lib/use-debounced-value'
-
-export type HomeCuratedContextMode = 'search' | 'filters'
 export type HomeCuratedListMode = 'trending' | 'popular'
 
 type HomeCuratedFilters = {
@@ -13,19 +9,15 @@ type HomeCuratedFilters = {
 
 export function useHomeCuratedState() {
   const [activeList, setActiveList] = useState<HomeCuratedListMode>('trending')
-  const [contextMode, setContextMode] = useState<HomeCuratedContextMode>('search')
 
   const [trendingPage, setTrendingPage] = useState(1)
   const [popularPage, setPopularPage] = useState(1)
 
-  const [searchRaw, setSearchRaw] = useState('')
   const [filters, setFilters] = useState<HomeCuratedFilters>({
     genreId: null,
     year: null,
     minVote: null,
   })
-
-  const searchDebounced = useDebouncedValue(searchRaw, 400)
 
   const activePage = activeList === 'trending' ? trendingPage : popularPage
   const setActivePage = activeList === 'trending' ? setTrendingPage : setPopularPage
@@ -34,39 +26,25 @@ export function useHomeCuratedState() {
     () => ({
       ui: {
         activeList,
-        contextMode,
         activePage,
         trendingPage,
         popularPage,
-        searchRaw,
-        searchDebounced,
         genreId: filters.genreId,
         year: filters.year,
         minVote: filters.minVote,
       },
       actions: {
         setActiveList,
-        setContextMode,
-        setSearchRaw: (value: string) => {
-          setSearchRaw(value)
-          setActivePage(1)
-          if (value.trim().length > 0) {
-            setFilters({ genreId: null, year: null, minVote: null })
-          }
-        },
         setGenreId: (genreId: number | null) => {
           setFilters((prev) => ({ ...prev, genreId }))
-          setSearchRaw('')
           setActivePage(1)
         },
         setYear: (year: number | null) => {
           setFilters((prev) => ({ ...prev, year }))
-          setSearchRaw('')
           setActivePage(1)
         },
         setMinVote: (minVote: number | null) => {
           setFilters((prev) => ({ ...prev, minVote }))
-          setSearchRaw('')
           setActivePage(1)
         },
         resetFilters: () => {
@@ -79,12 +57,9 @@ export function useHomeCuratedState() {
     }),
     [
       activeList,
-      contextMode,
       activePage,
       trendingPage,
       popularPage,
-      searchRaw,
-      searchDebounced,
       filters.genreId,
       filters.year,
       filters.minVote,

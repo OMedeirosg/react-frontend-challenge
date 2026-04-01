@@ -11,9 +11,9 @@ import {
   useTrendingMovies,
 } from '@/features/movies/queries'
 import { CuratedListSection } from '@/features/movies/ui/curated-list-section'
+import { HomeCuratedListToggle } from '@/features/movies/ui/home-curated-list-toggle'
 import { HomeCuratedToolbar } from '@/features/movies/ui/home-curated-toolbar'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
-import { useToastStore } from '@/shared/model/toast-store'
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
@@ -28,7 +28,6 @@ export const Route = createFileRoute('/')({
 function HomeComponent() {
   const navigate = useNavigate()
   const { ui, actions } = useHomeCuratedState()
-  const showToast = useToastStore((s) => s.showToast)
   const watchlistActions = useWatchlistActions()
   const genresQuery = useMovieGenres('pt-BR')
   const trendingQuery = useTrendingMovies(ui.trendingPage, 'day')
@@ -44,21 +43,6 @@ function HomeComponent() {
     popularData: popularQuery.data,
   })
 
-  const actionsWithFeedback = {
-    ...actions,
-    setContextMode: (mode: 'search' | 'filters') => {
-      if (ui.contextMode === mode) return
-      actions.setContextMode(mode)
-      showToast({
-        variant: 'info',
-        message:
-          mode === 'search'
-            ? 'Modo de pesquisa contextual ativado.'
-            : 'Modo de filtros avançados ativado.',
-      })
-    },
-  }
-
   const tableActions = {
     onToggleWatchlist: watchlistActions.toggleFromMovie,
     isInWatchlist: watchlistActions.isInWatchlist,
@@ -72,15 +56,22 @@ function HomeComponent() {
       <h1 className="mb-1 text-2xl font-semibold">Dashboard</h1>
       <p className="mb-4 text-sm text-muted-foreground">
         Home mostra listas curadas (Trending/Popular). Discovery cobre catálogo
-        geral com busca contextual e filtros avançados.
+        geral com busca global na topbar e filtros avançados.
       </p>
 
+      <div className="mb-2">
+        <HomeCuratedListToggle
+          activeList={ui.activeList}
+          onSelectList={actions.setActiveList}
+        />
+      </div>
       <MoviesTableLayout
+        orientation="top"
         filters={
           <HomeCuratedToolbar
             className="space-y-2"
             ui={ui}
-            actions={actionsWithFeedback}
+            actions={actions}
             genres={genresQuery.data?.genres}
           />
         }
@@ -97,8 +88,8 @@ function HomeComponent() {
             movies={filteredMovies}
             genres={genresQuery.data?.genres}
             emptyMessage={emptyMessage}
-            onPrevPage={actionsWithFeedback.prevPage}
-            onNextPage={actionsWithFeedback.nextPage}
+            onPrevPage={actions.prevPage}
+            onNextPage={actions.nextPage}
             tableActions={tableActions}
           />
         }

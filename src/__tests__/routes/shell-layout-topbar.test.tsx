@@ -57,6 +57,24 @@ describe('shell layout and topbar', () => {
     expect(screen.getByRole('heading', { name: 'Discovery' })).toBeTruthy()
   })
 
+  it('submete busca global na topbar e redireciona com q na URL', async () => {
+    await setAuthenticatedUser()
+    const { router } = renderWithApp('/')
+    const user = userEvent.setup()
+
+    await waitFor(() => {
+      expect(screen.getByLabelText('Buscar filmes')).toBeTruthy()
+    })
+
+    await user.type(screen.getByLabelText('Buscar filmes'), 'batman')
+    await user.click(screen.getByRole('button', { name: 'Ir para discovery' }))
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/discovery')
+    })
+    expect((router.state.location.search as { q?: string }).q).toBe('batman')
+  })
+
   it('faz logout pela topbar e redireciona para login', async () => {
     await setAuthenticatedUser()
     const { router } = renderWithApp('/')

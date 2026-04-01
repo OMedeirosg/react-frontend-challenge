@@ -93,7 +93,12 @@ export function MoviesDiscoveryTable(props: Readonly<MoviesDiscoveryTableProps>)
   const localPageIndex = table.getState().pagination.pageIndex
   const totalResults = totalResultsProp ?? movies.length
 
-  const localPagesPerApiBatch = Math.ceil(API_BATCH_SIZE / pageSize)
+  const effectiveBatchSize =
+    movies.length > 0 ? movies.length : API_BATCH_SIZE
+  const localPagesPerApiBatch = Math.max(
+    1,
+    Math.ceil(effectiveBatchSize / pageSize),
+  )
 
   const currentPageLabel = isExternalPagination
     ? (external.page - 1) * localPagesPerApiBatch + localPageIndex + 1

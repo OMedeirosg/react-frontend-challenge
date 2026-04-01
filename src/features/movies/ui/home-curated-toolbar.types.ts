@@ -1,7 +1,6 @@
-import type {
-  HomeCuratedContextMode,
-  HomeCuratedListMode,
-} from '@/features/movies/model/use-home-curated-state'
+import type { HomeCuratedListMode } from '@/features/movies/model/use-home-curated-state'
+
+export type HomeCuratedContextMode = 'search' | 'filters'
 import type { MovieGenre } from '@/features/movies/types'
 
 export type HomeCuratedToolbarUi = {

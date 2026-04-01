@@ -6,7 +6,7 @@ export function parseOptionalInt(raw: string): number | null {
 }
 
 export function parseOptionalFloat(raw: string): number | null {
-  const trimmed = raw.trim()
+  const trimmed = raw.trim().replace(',', '.')
   if (!trimmed) return null
   const n = Number(trimmed)
   return Number.isFinite(n) ? n : null

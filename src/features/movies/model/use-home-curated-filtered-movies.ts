@@ -6,7 +6,6 @@ import type { HomeCuratedListMode } from './use-home-curated-state'
 type UseHomeCuratedFilteredMoviesParams = {
   ui: {
     activeList: HomeCuratedListMode
-    searchDebounced: string
     genreId: number | null
     year: number | null
     minVote: number | null
@@ -27,10 +26,6 @@ export function useHomeCuratedFilteredMovies(
         : (popularData?.results ?? [])
 
     const filteredMovies = sourceList.filter((movie: MovieListItem) => {
-      if (ui.searchDebounced.trim()) {
-        const query = ui.searchDebounced.trim().toLowerCase()
-        if (!movie.title.toLowerCase().includes(query)) return false
-      }
       if (ui.genreId != null && !movie.genre_ids.includes(ui.genreId)) return false
       if (ui.year != null && Number(movie.release_date?.slice(0, 4) || 0) !== ui.year) {
         return false
@@ -50,7 +45,6 @@ export function useHomeCuratedFilteredMovies(
     ui.activeList,
     ui.genreId,
     ui.minVote,
-    ui.searchDebounced,
     ui.year,
     trendingData?.results,
     popularData?.results,
