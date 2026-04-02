@@ -36,6 +36,8 @@ export default defineConfig([
     files: ['src/routes/**/*.tsx'],
     rules: {
       'react-refresh/only-export-components': 'off',
+      'max-lines': 'off',
+      'max-lines-per-function': 'off',
     },
   },
   // shadcn/ui: components may export helpers (e.g. buttonVariants) alongside the component
