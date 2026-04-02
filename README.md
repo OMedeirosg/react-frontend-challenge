@@ -2,6 +2,9 @@
 
 Dashboard de curadoria de filmes para o **Desafio React Frontend** (consumo da API pública [TMDB](https://developer.themoviedb.org/docs)).
 
+## Deploy
+
+- **Produção (Vercel):** [react-frontend-challenge-blond.vercel.app](https://react-frontend-challenge-blond.vercel.app/)
 
 ## Início rápido
 
