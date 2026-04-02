@@ -7,7 +7,7 @@ export function AuthenticatedShell() {
   return (
     <div className="flex min-h-svh flex-col">
       <AppTopBar />
-      <main className="min-w-0 flex-1 overflow-x-hidden">
+      <main className="w-full min-w-0 flex-1 overflow-x-hidden">
         <Outlet />
       </main>
       <AppFooter />

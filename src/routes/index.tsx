@@ -63,7 +63,7 @@ function HomeComponent() {
   }
 
   return (
-    <div className="px-4 pt-4 pb-3">
+    <div className="min-w-0 px-4 pt-4 pb-3">
       <h1 className="mb-1 text-2xl font-semibold">Top Movies</h1>
       <p className="mb-4 text-sm text-muted-foreground">
         Listas Trending e Popular da TMDB. Filtre na tabela e abra um filme para ver

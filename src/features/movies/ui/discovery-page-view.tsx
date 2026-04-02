@@ -45,7 +45,7 @@ export function DiscoveryPageView(props: Readonly<DiscoveryPageViewProps>) {
   )
 
   return (
-    <div className="p-4">
+    <div className="min-w-0 p-4">
       <h1 className="mb-1 text-2xl font-semibold">Discovery</h1>
       <p className="mb-4 text-sm text-muted-foreground">
         Catálogo do TMDB com busca na barra superior e filtros para a tabela.
