@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import { isRateLimitError } from '@/lib/api'
 
@@ -27,7 +26,6 @@ export const ReactQueryProvider = ({
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools />
     </QueryClientProvider>
   )
 }
