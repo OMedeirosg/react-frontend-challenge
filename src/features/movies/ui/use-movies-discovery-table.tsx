@@ -53,8 +53,8 @@ export function useMoviesDiscoveryTable(args: UseMoviesDiscoveryTableArgs) {
   }, [genres])
 
   const columns = useMemo(
-    () => buildMoviesDiscoveryColumns(genreNameById, actions, { viewMode }),
-    [actions, genreNameById, viewMode],
+    () => buildMoviesDiscoveryColumns(genreNameById, actions),
+    [actions, genreNameById],
   )
 
   /* TanStack Table: React Compiler skips memoization for this hook by design. */

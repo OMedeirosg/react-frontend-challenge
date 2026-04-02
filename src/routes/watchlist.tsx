@@ -47,7 +47,7 @@ function WatchlistPage() {
   } = useWatchlistTableFilters(movies)
 
   return (
-    <div className="p-4">
+    <div className="min-w-0 p-4">
       <h1 className="mb-1 text-2xl font-semibold">Watchlist</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Filmes que você adicionou para acompanhar.

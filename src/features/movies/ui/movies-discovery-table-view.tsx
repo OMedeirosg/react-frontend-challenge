@@ -18,7 +18,6 @@ const COLUMN_COL_CLASS: Record<string, string> = {
   title: 'w-[280px]',
   genre: 'w-[220px]',
   year: 'w-[80px]',
-  releaseDate: 'w-[120px]',
   vote_average: 'w-[64px]',
   actions: 'w-[52px]',
 }
@@ -89,7 +88,7 @@ export function MoviesDiscoveryTableView(
               </colgroup>
               <caption className="sr-only">
                 {viewMode === 'watchlist'
-                  ? 'Tabela da watchlist: colunas pôster, título, gênero, data de lançamento, nota e ações.'
+                  ? 'Tabela da watchlist: colunas pôster, título, gênero, ano, nota e ações. Use os cabeçalhos para ordenar quando disponível.'
                   : 'Tabela de filmes em descoberta: colunas pôster, título, gênero, ano, nota e ações. Use os cabeçalhos para ordenar quando disponível.'}
               </caption>
               <thead>

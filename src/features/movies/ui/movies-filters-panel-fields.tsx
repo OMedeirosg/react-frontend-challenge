@@ -37,7 +37,7 @@ export function MoviesFiltersPanelFields(
         {genres?.length ? (
           <select
             id={`${idPrefix}-genre`}
-            className="h-8 min-w-[160px] rounded-lg border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-8 min-w-[160px] rounded-lg border border-input bg-background px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 dark:bg-card dark:text-card-foreground"
             value={genreId ?? ''}
             onChange={(e) =>
               onGenreChange(e.target.value === '' ? null : Number(e.target.value))

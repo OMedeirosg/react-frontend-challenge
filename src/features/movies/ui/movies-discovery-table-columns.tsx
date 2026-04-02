@@ -19,40 +19,17 @@ export type MoviesTableActions = {
   isInWatchlist: (movieId: number) => boolean
 }
 
-type MoviesTableViewMode = 'catalog' | 'watchlist'
-
-type BuildMoviesDiscoveryColumnsOptions = {
-  viewMode?: MoviesTableViewMode
-}
-
-function releaseDateLabel(rawDate: string): string {
-  const [year, month, day] = rawDate.split('-')
-  if (!year || !month || !day) return '—'
-  return `${day}/${month}/${year}`
-}
-
 export function buildMoviesDiscoveryColumns(
   genreNameById: Map<number, string> | undefined,
   actions?: MoviesTableActions,
-  options?: BuildMoviesDiscoveryColumnsOptions,
 ) {
-  const viewMode = options?.viewMode ?? 'catalog'
-  const dateColumn =
-    viewMode === 'watchlist'
-      ? columnHelper.accessor('release_date', {
-          id: 'releaseDate',
-          header: 'Data de Lançamento',
-          cell: (info) => releaseDateLabel(info.getValue()),
-          enableSorting: false,
-          enableHiding: true,
-        })
-      : columnHelper.accessor((row) => releaseYear(row), {
-          id: 'year',
-          header: 'Ano',
-          cell: ({ row }) => releaseYear(row.original),
-          sortingFn: 'alphanumeric',
-          enableHiding: true,
-        })
+  const yearColumn = columnHelper.accessor((row) => releaseYear(row), {
+    id: 'year',
+    header: 'Ano',
+    cell: ({ row }) => releaseYear(row.original),
+    sortingFn: 'alphanumeric',
+    enableHiding: true,
+  })
 
   return [
     columnHelper.display({
@@ -82,7 +59,7 @@ export function buildMoviesDiscoveryColumns(
       sortingFn: 'alphanumeric',
       enableHiding: true,
     }),
-    dateColumn,
+    yearColumn,
     columnHelper.accessor('vote_average', {
       header: 'Nota',
       cell: (info) => info.getValue().toFixed(1),
