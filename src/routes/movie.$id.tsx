@@ -36,6 +36,7 @@ export const Route = createFileRoute('/movie/$id')({
       throw redirect({ to: '/login' })
     }
   },
+  pendingComponent: MovieDetailsPageSkeleton,
   component: MovieDetailsPage,
 })
 

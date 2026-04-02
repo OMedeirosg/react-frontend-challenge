@@ -19,6 +19,7 @@ import {
   watchlistFilteredEmptyDescription,
 } from '@/features/movies/model/movie-query-errors'
 import { EmptyState } from '@/shared/ui/feedback'
+import { RoutePendingTablePage } from '@/shared/ui/route-pending-fallback'
 
 export const Route = createFileRoute('/watchlist')({
   beforeLoad: async () => {
@@ -27,6 +28,7 @@ export const Route = createFileRoute('/watchlist')({
       throw redirect({ to: '/login' })
     }
   },
+  pendingComponent: RoutePendingTablePage,
   component: WatchlistPage,
 })
 
