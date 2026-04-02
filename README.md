@@ -2,6 +2,8 @@
 
 Dashboard de curadoria de filmes para o **Desafio React Frontend** (consumo da API pública [TMDB](https://developer.themoviedb.org/docs)).
 
+**Deploy (Vercel):** [https://react-frontend-challenge-jvxhnn0w8-medeiros1.vercel.app/login](https://react-frontend-challenge-jvxhnn0w8-medeiros1.vercel.app/login)
+
 ## Início rápido
 
 ### O que precisa de instalar (uma vez na máquina)
