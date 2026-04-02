@@ -20,12 +20,14 @@ vi.mock('@/features/movies/queries', async () => {
     useMovieDetails: vi.fn(),
     useMovieCredits: vi.fn(),
     useMovieVideos: vi.fn(),
+    useMovieSimilar: vi.fn(),
   }
 })
 
 const mockedUseMovieDetails = vi.mocked(movieQueries.useMovieDetails)
 const mockedUseMovieCredits = vi.mocked(movieQueries.useMovieCredits)
 const mockedUseMovieVideos = vi.mocked(movieQueries.useMovieVideos)
+const mockedUseMovieSimilar = vi.mocked(movieQueries.useMovieSimilar)
 
 const movieId = 999
 
@@ -63,7 +65,7 @@ function mockDetailQueriesSuccess() {
   mockedUseMovieCredits.mockReturnValue({
     data: {
       cast: [
-        { id: 1, name: 'Ator Um', character: 'Personagem' },
+        { id: 1, name: 'Ator Um', character: 'Personagem', profile_path: null },
       ],
     },
     error: null,
@@ -79,9 +81,22 @@ function mockDetailQueriesSuccess() {
     isFetching: false,
     isPending: false,
   } as unknown as ReturnType<typeof movieQueries.useMovieVideos>)
+
+  mockedUseMovieSimilar.mockReturnValue({
+    data: {
+      page: 1,
+      results: [],
+      total_pages: 0,
+      total_results: 0,
+    },
+    error: null,
+    isError: false,
+    isFetching: false,
+    isPending: false,
+  } as unknown as ReturnType<typeof movieQueries.useMovieSimilar>)
 }
 
-describe('Movie details page — dashboard watchlist button', () => {
+describe('Movie details page — watchlist button', () => {
   beforeEach(() => {
     resetAuthStore()
     resetWatchlistStore()
@@ -89,14 +104,14 @@ describe('Movie details page — dashboard watchlist button', () => {
     mockDetailQueriesSuccess()
   })
 
-  it('adds and removes movie from dashboard via primary button on /movie/:id', async () => {
+  it('adds and removes movie from watchlist via primary button on /movie/:id', async () => {
     const user = userEvent.setup()
     renderWithApp(`/movie/${movieId}`)
 
     expect(await screen.findByRole('heading', { name: movieDetails.title })).toBeTruthy()
 
     const addButton = await screen.findByRole('button', {
-      name: 'Adicionar ao dashboard',
+      name: 'Adicionar à watchlist',
     })
     await user.click(addButton)
 
@@ -105,7 +120,7 @@ describe('Movie details page — dashboard watchlist button', () => {
     })
 
     const removeButton = screen.getByRole('button', {
-      name: 'Remover do dashboard',
+      name: 'Remover da watchlist',
     })
     await user.click(removeButton)
 

@@ -5,6 +5,7 @@ export {
   useMovieCredits,
   useMovieDetails,
   useMovieGenres,
+  useMovieSimilar,
   useMovieVideos,
   usePopularMovies,
   useTrendingMovies,

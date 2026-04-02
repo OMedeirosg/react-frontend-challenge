@@ -62,10 +62,10 @@ function HomeComponent() {
 
   return (
     <div className="px-4 pt-4 pb-3">
-      <h1 className="mb-1 text-2xl font-semibold">Dashboard</h1>
+      <h1 className="mb-1 text-2xl font-semibold">Top Movies</h1>
       <p className="mb-4 text-sm text-muted-foreground">
-        Home mostra listas curadas (Trending/Popular). Discovery cobre catálogo
-        geral com busca global na topbar e filtros avançados.
+        Listas Trending e Popular da TMDB. Filtre na tabela e abra um filme para ver
+        sinopse, elenco e trailer.
       </p>
 
       <div className="mb-2">

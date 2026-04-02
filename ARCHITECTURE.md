@@ -41,7 +41,7 @@ CineDash é um SPA em **React + TypeScript + Vite** que consome a **API REST da 
 - **Imagens (posters):** a TMDB devolve `poster_path` relativo à CDN. A montagem da URL fica centralizada em [`src/features/movies/lib/tmdb-poster-url.ts`](./src/features/movies/lib/tmdb-poster-url.ts) (`https://image.tmdb.org/t/p/{size}/...`). Na UI: se o helper retornar `null`, usar placeholder sem `<img>`; se existir URL e a imagem falhar ao carregar, tratar com `onError` e o mesmo placeholder (ver comentário no módulo).
 - O cliente HTTP pode ficar em uma camada **`services`** ou **`api`**: funções puras + Query nos hooks ou em loaders, mantendo **UI separada de fetch**.
 
-### Endpoints usados no dashboard (Discovery)
+### Endpoints TMDB (Top Movies e Discovery)
 
 - Listas: `/movie/popular`, `/trending/movie/{day|week}`, `/discover/movie`, `/search/movie`
 - Gêneros: `/genre/movie/list` (para preencher o select e mapear `genre_ids` → nomes)
@@ -61,7 +61,7 @@ Tipos partilhados de UI de lista (`DiscoveryListUiState`, `DiscoveryListParams`)
 
 ### Rotas e UX de descoberta
 
-- [`src/routes/index.tsx`](./src/routes/index.tsx): dashboard com listas curadas de **Trending** e **Popular**, alternáveis em uma única grade. A home possui modo de **Pesquisa contextual** e modo de **Filtros avançados**, com paginação própria por lista.
+- [`src/routes/index.tsx`](./src/routes/index.tsx): **Top Movies** (home) com listas curadas de **Trending** e **Popular**, alternáveis em uma única grade. A home possui modo de **Pesquisa contextual** e modo de **Filtros avançados**, com paginação própria por lista.
 - [`src/routes/discovery.tsx`](./src/routes/discovery.tsx): `validateSearch` com `discoveryUrlSearchSchema`; componente usa `useDiscoveryRouteState` para o fluxo de **catálogo geral** com busca textual (URL), filtros e paginação para exploração ampla do acervo.
 - Na barra de filtros, a UI explicita o contexto atual:
   - `Searching for "..."` quando há texto
@@ -69,7 +69,7 @@ Tipos partilhados de UI de lista (`DiscoveryListUiState`, `DiscoveryListParams`)
 
 ### Escopo funcional por rota
 
-- **Home (`/`)**: visão curada e rápida com recortes de mercado (**Trending** e **Popular**). O objetivo é acompanhamento de listas prontas da TMDB com refinamento local (busca contextual/filtros) dentro da lista ativa.
+- **Top Movies (`/`)**: visão curada e rápida com recortes de mercado (**Trending** e **Popular**). O objetivo é acompanhamento de listas prontas da TMDB com refinamento local (busca contextual/filtros) dentro da lista ativa.
 - **Discovery (`/discovery`)**: visão de descoberta ampla do catálogo. O objetivo é refinamento de consulta com busca contextual + filtros avançados.
 - Essa separação evita sobrecarregar uma única tela e deixa explícito que listas curadas e descoberta geral são fluxos complementares, com objetivos diferentes.
 

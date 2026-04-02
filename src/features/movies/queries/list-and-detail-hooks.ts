@@ -4,6 +4,7 @@ import {
   getMovieCredits,
   getMovieDetails,
   getMovieGenres,
+  getMovieSimilar,
   getMovieVideos,
   getPopularMovies,
   getTrendingMovies,
@@ -59,6 +60,17 @@ export function useMovieVideos(movieId: number, language = 'pt-BR') {
   return useQuery({
     queryKey: movieKeys.videos(movieId, language),
     queryFn: () => getMovieVideos({ movieId, language }),
+    enabled: Number.isFinite(movieId) && movieId > 0,
+    staleTime: POPULAR_LIST_STALE_MS,
+  })
+}
+
+const SIMILAR_PAGE = 1
+
+export function useMovieSimilar(movieId: number, language = 'pt-BR') {
+  return useQuery({
+    queryKey: movieKeys.similar(movieId, language, SIMILAR_PAGE),
+    queryFn: () => getMovieSimilar({ movieId, language, page: SIMILAR_PAGE }),
     enabled: Number.isFinite(movieId) && movieId > 0,
     staleTime: POPULAR_LIST_STALE_MS,
   })

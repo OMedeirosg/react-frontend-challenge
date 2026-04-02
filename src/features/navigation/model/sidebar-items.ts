@@ -1,4 +1,4 @@
-import { type LucideIcon, Compass, LayoutDashboard, ListChecks } from 'lucide-react'
+import { type LucideIcon, Compass, Film, ListChecks } from 'lucide-react'
 
 export type SidebarRouteItem = {
   id: string
@@ -18,10 +18,10 @@ export type SidebarFutureItem = {
 
 export const authenticatedSidebarRouteItems: SidebarRouteItem[] = [
   {
-    id: 'dashboard',
-    label: 'Dashboard',
+    id: 'top-movies',
+    label: 'Top Movies',
     to: '/',
-    icon: LayoutDashboard,
+    icon: Film,
     enabled: true,
   },
   {
