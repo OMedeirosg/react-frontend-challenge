@@ -21,7 +21,7 @@ describe('shell layout and topbar', () => {
       expect(screen.getByText('Iniciar sessão')).toBeTruthy()
     })
 
-    expect(screen.queryByRole('link', { name: 'Dashboard' })).toBeNull()
+    expect(screen.queryByRole('link', { name: 'Top Movies' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Logout' })).toBeNull()
   })
 
@@ -30,7 +30,7 @@ describe('shell layout and topbar', () => {
     renderWithApp('/')
 
     await waitFor(() => {
-      expect(screen.getByRole('link', { name: 'Dashboard' })).toBeTruthy()
+      expect(screen.getByRole('link', { name: 'Top Movies' })).toBeTruthy()
     })
 
     expect(screen.getByRole('link', { name: 'Discovery' })).toBeTruthy()
