@@ -15,6 +15,7 @@ import { CuratedListSection } from '@/features/movies/ui/curated-list-section'
 import { HomeCuratedListToggle } from '@/features/movies/ui/home-curated-list-toggle'
 import { HomeCuratedToolbar } from '@/features/movies/ui/home-curated-toolbar'
 import { MoviesTableLayout } from '@/features/movies/ui/movies-table-layout'
+import { RoutePendingTablePage } from '@/shared/ui/route-pending-fallback'
 
 export const Route = createFileRoute('/')({
   beforeLoad: async () => {
@@ -23,6 +24,7 @@ export const Route = createFileRoute('/')({
       throw redirect({ to: '/login' })
     }
   },
+  pendingComponent: RoutePendingTablePage,
   component: HomeComponent,
 })
 
