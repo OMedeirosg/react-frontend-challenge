@@ -2,22 +2,19 @@ import type { ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import type { MovieDetails } from '@/features/movies/types'
-import { useToastStore } from '@/shared/model/toast-store'
 
 type WatchlistActionsApi = ReturnType<
   typeof import('../model/use-watchlist-actions').useWatchlistActions
 >
-
-type ShowToast = ReturnType<typeof useToastStore.getState>['showToast']
 
 export type MovieDetailsLoadedProps = {
   readonly movie: MovieDetails
   readonly posterUrl: string | null
   readonly inWatchlist: boolean
   readonly watchlistActions: WatchlistActionsApi
-  readonly showToast: ShowToast
   readonly castContent: ReactNode
   readonly trailerBlock: ReactNode
+  readonly relatedContent: ReactNode
 }
 
 export function MovieDetailsLoaded(props: Readonly<MovieDetailsLoadedProps>) {
@@ -26,9 +23,9 @@ export function MovieDetailsLoaded(props: Readonly<MovieDetailsLoadedProps>) {
     posterUrl,
     inWatchlist,
     watchlistActions,
-    showToast,
     castContent,
     trailerBlock,
+    relatedContent,
   } = props
 
   return (
@@ -84,7 +81,7 @@ export function MovieDetailsLoaded(props: Readonly<MovieDetailsLoadedProps>) {
               })
             }}
           >
-            {inWatchlist ? 'Remover do dashboard' : 'Adicionar ao dashboard'}
+            {inWatchlist ? 'Remover da watchlist' : 'Adicionar à watchlist'}
           </Button>
         </div>
       </section>
@@ -99,18 +96,10 @@ export function MovieDetailsLoaded(props: Readonly<MovieDetailsLoadedProps>) {
         {trailerBlock}
       </section>
 
-      <Button
-        type="button"
-        variant="outline"
-        onClick={() =>
-          showToast({
-            variant: 'info',
-            message: 'Use o menu lateral para voltar para Discovery ou Dashboard.',
-          })
-        }
-      >
-        Dica de navegação
-      </Button>
+      <section className="space-y-2">
+        <h2 className="text-lg font-medium">Filmes relacionados</h2>
+        {relatedContent}
+      </section>
     </div>
   )
 }

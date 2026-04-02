@@ -146,3 +146,19 @@ export function movieCreditsInlineErrorMessage(error: unknown): string {
   }
   return 'Não foi possível carregar o elenco.'
 }
+
+export const movieSimilarEmptyMessage =
+  'Nenhum filme relacionado encontrado.' as const
+
+export function movieSimilarInlineErrorMessage(error: unknown): string {
+  if (isTooManyRequests(error)) {
+    return tmdbRateLimitUserMessage
+  }
+  if (error instanceof ApiError) {
+    return `Não foi possível carregar filmes relacionados (erro ${error.status}).`
+  }
+  if (isTmdbContractError(error)) {
+    return 'Os dados de filmes relacionados chegaram em formato inesperado.'
+  }
+  return 'Não foi possível carregar filmes relacionados.'
+}
