@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { releaseDateLabel } from '@/features/movies/lib/release-year'
 import type { MovieDetails } from '@/features/movies/types'
 
 type WatchlistActionsApi = ReturnType<
@@ -29,11 +30,12 @@ export function MovieDetailsLoaded(props: Readonly<MovieDetailsLoadedProps>) {
   } = props
 
   return (
-    <div className="space-y-6 p-4">
+    <div className="min-w-0 space-y-6 p-4">
       <header className="space-y-2">
         <h1 className="text-2xl font-semibold">{movie.title}</h1>
         <p className="text-sm text-muted-foreground">
-          Nota {movie.vote_average.toFixed(1)} • Lançamento {movie.release_date || '—'}
+          Nota {movie.vote_average.toFixed(1)} • Lançamento{' '}
+          {releaseDateLabel(movie.release_date)}
         </p>
       </header>
 

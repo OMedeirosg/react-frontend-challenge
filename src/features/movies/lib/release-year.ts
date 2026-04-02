@@ -18,3 +18,13 @@ export function releaseYear(movie: MovieListItem): string {
   const y = movie.release_date.slice(0, 4)
   return y || '—'
 }
+
+/** Data TMDB (`YYYY-MM-DD`) para exibição DD/MM/AAAA; vazio ou inválido → "—". */
+export function releaseDateLabel(
+  rawDate: string | null | undefined,
+): string {
+  if (!rawDate?.length) return '—'
+  const [year, month, day] = rawDate.split('-')
+  if (!year || !month || !day) return '—'
+  return `${day}/${month}/${year}`
+}
