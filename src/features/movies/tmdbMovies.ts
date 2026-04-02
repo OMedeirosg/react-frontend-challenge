@@ -3,6 +3,7 @@ export type {
   MovieCreditsParams,
   MovieDetailsParams,
   MovieGenresParams,
+  MovieSimilarParams,
   MovieVideosParams,
   PopularMoviesParams,
   TrendingMoviesParams,
@@ -21,5 +22,6 @@ export {
 export {
   getMovieCredits,
   getMovieDetails,
+  getMovieSimilar,
   getMovieVideos,
 } from './tmdb-detail-api'

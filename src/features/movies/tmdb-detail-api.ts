@@ -3,11 +3,14 @@ import {
   movieCreditsResponseSchema,
   movieDetailsRequestSchema,
   movieDetailsResponseSchema,
+  movieSimilarRequestSchema,
+  movieSimilarResponseSchema,
   movieVideosRequestSchema,
   movieVideosResponseSchema,
   parseTmdbRequest,
   type MovieCreditsParams,
   type MovieDetailsParams,
+  type MovieSimilarParams,
   type MovieVideosParams,
 } from './contracts/tmdb.contracts'
 import { TMDB_ENDPOINT, tmdbGetParsed } from './tmdb-http'
@@ -15,6 +18,7 @@ import type {
   MovieCreditsResponse,
   MovieDetails,
   MovieVideosResponse,
+  PaginatedMoviesResponse,
 } from './types'
 
 export async function getMovieDetails(
@@ -62,5 +66,24 @@ export async function getMovieVideos(
     `/movie/${input.movieId}/videos?${q}`,
     movieVideosResponseSchema,
     TMDB_ENDPOINT.videos,
+  )
+}
+
+export async function getMovieSimilar(
+  params: MovieSimilarParams,
+): Promise<PaginatedMoviesResponse> {
+  const input = parseTmdbRequest(
+    movieSimilarRequestSchema,
+    params,
+    TMDB_ENDPOINT.similar,
+  )
+  const q = new URLSearchParams({
+    language: input.language,
+    page: String(input.page),
+  })
+  return tmdbGetParsed(
+    `/movie/${input.movieId}/similar?${q}`,
+    movieSimilarResponseSchema,
+    TMDB_ENDPOINT.similar,
   )
 }

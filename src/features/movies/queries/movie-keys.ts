@@ -35,4 +35,6 @@ export const movieKeys = {
     [...movieKeys.all, 'credits', { movieId, language }] as const,
   videos: (movieId: number, language: string) =>
     [...movieKeys.all, 'videos', { movieId, language }] as const,
+  similar: (movieId: number, language: string, page: number) =>
+    [...movieKeys.all, 'similar', { movieId, language, page }] as const,
 }
